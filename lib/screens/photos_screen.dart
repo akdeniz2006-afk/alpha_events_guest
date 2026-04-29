@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/header_title.dart';
@@ -10,54 +11,60 @@ class PhotosScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photos = [
-      PhotoItem(
-        title: 'Açılış',
-        subtitle: 'Ana Salon',
-        icon: Icons.event_available_rounded,
-        colors: const [AppColors.navyStart, AppColors.navyEnd],
-      ),
-      PhotoItem(
-        title: 'Toplantı',
-        subtitle: 'Strateji Oturumu',
-        icon: Icons.groups_rounded,
-        colors: const [AppColors.petrolStart, AppColors.petrolEnd],
-      ),
-      PhotoItem(
-        title: 'Gala',
-        subtitle: 'Balo Salonu',
-        icon: Icons.celebration_rounded,
-        colors: const [AppColors.amberStart, AppColors.amberEnd],
-      ),
-      PhotoItem(
-        title: 'Sahne',
-        subtitle: 'Akşam Programı',
-        icon: Icons.mic_external_on_rounded,
-        colors: const [AppColors.slateStart, AppColors.slateEnd],
-      ),
-    ];
+    final bool openedAsSubPage = Navigator.of(context).canPop();
 
     return AppPage(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 108),
+        padding: EdgeInsets.fromLTRB(
+          18,
+          16,
+          18,
+          openedAsSubPage ? 42 : 120,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HeaderTitle(
-              title: 'Fotoğraflar',
-              subtitle: 'Etkinlik fotoğraflarını görüntüleyin ve indirin',
-            ),
+            openedAsSubPage
+                ? const BackHeader(
+                    title: 'Fotoğraflar',
+                    subtitle: 'Etkinlik ve konaklama görselleri',
+                  )
+                : const HeaderTitle(
+                    title: 'Fotoğraflar',
+                    subtitle: 'Etkinlik ve konaklama görselleri',
+                  ),
+            const SizedBox(height: 20),
+            const PhotosHeroCard(),
+            const SizedBox(height: 18),
+            const PhotoInfoCard(),
             const SizedBox(height: 22),
-            GridView.count(
-              crossAxisCount: 2,
+            const Text(
+              'Galeri',
+              style: TextStyle(
+                color: Colors.white,
+                decoration: TextDecoration.none,
+                fontSize: 21,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.96,
-              children: photos.map((photo) {
-                return PhotoCard(photo: photo);
-              }).toList(),
+              itemCount: demoHotelPhotos.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 11,
+                mainAxisSpacing: 11,
+                childAspectRatio: 0.82,
+              ),
+              itemBuilder: (context, index) {
+                return PhotoGridCard(
+                  imagePath: demoHotelPhotos[index],
+                  index: index,
+                );
+              },
             ),
           ],
         ),
@@ -66,135 +73,112 @@ class PhotosScreen extends StatelessWidget {
   }
 }
 
-class PhotoItem {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final List<Color> colors;
-
-  const PhotoItem({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.colors,
-  });
-}
-
-class PhotoCard extends StatelessWidget {
-  final PhotoItem photo;
-
-  const PhotoCard({
-    super.key,
-    required this.photo,
-  });
+class PhotosHeroCard extends StatelessWidget {
+  const PhotosHeroCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return PressableScale(
-      onTap: () => showDemoMessage(
-        context,
-        '${photo.title} fotoğrafları Firebase Storage sonrası açılacak.',
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: photo.colors,
-          ),
-          border: Border.all(color: Colors.white.withOpacity(0.12)),
-          boxShadow: [
-            BoxShadow(
-              color: photo.colors.first.withOpacity(0.24),
-              blurRadius: 22,
-              offset: const Offset(0, 14),
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.34),
-              blurRadius: 20,
-              offset: const Offset(0, 12),
-            ),
-          ],
+    final String imagePath =
+        demoHotelPhotos.isNotEmpty ? demoHotelPhotos.first : '';
+
+    return Container(
+      height: 238,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.38),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(31),
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            Positioned(
-              right: -18,
-              top: -18,
-              child: Icon(
-                photo.icon,
-                size: 92,
-                color: Colors.white.withOpacity(0.12),
+            if (imagePath.isNotEmpty)
+              Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              )
+            else
+              Container(
+                color: Colors.white.withOpacity(0.08),
+                child: const Icon(
+                  Icons.photo_library_rounded,
+                  size: 62,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white.withOpacity(0.14),
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.12),
-                    ],
-                  ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.06),
+                    Colors.black.withOpacity(0.28),
+                    Colors.black.withOpacity(0.78),
+                  ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Positioned(
+              left: 18,
+              right: 18,
+              bottom: 18,
+              child: Row(
                 children: [
-                  const Spacer(),
-                  Icon(
-                    photo.icon,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 13),
-                  Text(
-                    photo.title,
-                    style: const TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w900,
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.14),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.photo_library_rounded,
+                      color: Colors.white,
+                      size: 26,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    photo.subtitle,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.72),
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Etkinlik Fotoğrafları',
+                          style: TextStyle(
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                            fontSize: 21,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          '${demoHotelPhotos.length} görsel hazır',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.68),
+                            decoration: TextDecoration.none,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SmallPillButton(
-                          label: 'Gör',
-                          onTap: () => showDemoMessage(
-                            context,
-                            '${photo.title} fotoğrafları açılacak.',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Expanded(
-                        child: SmallPillButton(
-                          label: 'İndir',
-                          onTap: () => showDemoMessage(
-                            context,
-                            'İndirme özelliği Storage sonrası bağlanacak.',
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -206,33 +190,153 @@ class PhotoCard extends StatelessWidget {
   }
 }
 
-class SmallPillButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
+class PhotoInfoCard extends StatelessWidget {
+  const PhotoInfoCard({super.key});
 
-  const SmallPillButton({
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: glassDecoration(
+        radius: 26,
+        opacity: 0.070,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: AppColors.champagne.withOpacity(0.13),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.champagne.withOpacity(0.20),
+              ),
+            ),
+            child: const Icon(
+              Icons.cloud_download_rounded,
+              color: AppColors.champagne,
+              size: 23,
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Fotoğraf paylaşım alanı',
+                  style: TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Etkinlik sonrası seçilen fotoğraflar burada görüntülenebilir ve indirilebilir olacak.',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.58),
+                    decoration: TextDecoration.none,
+                    fontSize: 12.7,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PhotoGridCard extends StatelessWidget {
+  final String imagePath;
+  final int index;
+
+  const PhotoGridCard({
     super.key,
-    required this.label,
-    required this.onTap,
+    required this.imagePath,
+    required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      onTap: onTap,
+      onTap: () {
+        showDialog(
+          context: context,
+          barrierColor: Colors.black.withOpacity(0.88),
+          builder: (_) {
+            return PhotoPreviewDialog(
+              imagePath: imagePath,
+              index: index,
+            );
+          },
+        );
+      },
       child: Container(
-        height: 32,
-        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.18),
-          borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: Colors.white.withOpacity(0.12)),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.10),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.30),
+              blurRadius: 22,
+              offset: const Offset(0, 14),
+            ),
+          ],
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w900,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(23),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.20),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 9,
+                top: 9,
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.34),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.12),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.open_in_full_rounded,
+                    color: Colors.white,
+                    size: 17,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -240,15 +344,121 @@ class SmallPillButton extends StatelessWidget {
   }
 }
 
-void showDemoMessage(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xFF1F1F24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+class PhotoPreviewDialog extends StatelessWidget {
+  final String imagePath;
+  final int index;
+
+  const PhotoPreviewDialog({
+    super.key,
+    required this.imagePath,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: Stack(
+              children: [
+                Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.52),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.16),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: glassDecoration(
+              radius: 22,
+              opacity: 0.090,
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.image_rounded,
+                  color: AppColors.champagne,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Fotoğraf ${index + 1}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.10),
+                    ),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.download_rounded,
+                        size: 17,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'İndir',
+                        style: TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-    ),
-  );
+    );
+  }
 }

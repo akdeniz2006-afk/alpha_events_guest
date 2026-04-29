@@ -6,7 +6,6 @@ import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/borusan_logo_badge.dart';
-import '../widgets/info_list_card.dart';
 import '../widgets/pressable_scale.dart';
 
 import 'announcements_screen.dart';
@@ -126,43 +125,15 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 26),
             const AnimatedEntrance(
               delay: 460,
-              child: DashboardSectionTitle(title: 'Konaklama Galerisi'),
+              child: DashboardSectionTitle(title: 'Günün Notları'),
             ),
             const SizedBox(height: 12),
             const AnimatedEntrance(
               delay: 500,
-              child: CompactHotelGalleryCard(),
-            ),
-            const SizedBox(height: 22),
-            const AnimatedEntrance(
-              delay: 540,
-              child: DashboardSectionTitle(title: 'Etkinlik Bilgileri'),
-            ),
-            const SizedBox(height: 12),
-            AnimatedEntrance(
-              delay: 580,
-              child: InfoListCard(
-                items: [
-                  InfoListItem(
-                    icon: Icons.business_rounded,
-                    title: 'Şirket',
-                    value: demoGuest.company,
-                  ),
-                  InfoListItem(
-                    icon: Icons.location_on_rounded,
-                    title: 'Lokasyon',
-                    value: demoGuest.location,
-                  ),
-                  InfoListItem(
-                    icon: Icons.badge_rounded,
-                    title: 'Katılımcı Kodu',
-                    value: demoGuest.guestCode,
-                  ),
-                ],
-              ),
+              child: DailyNotesCard(),
             ),
           ],
         ),
@@ -931,127 +902,101 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
   }
 }
 
-class CompactHotelGalleryCard extends StatelessWidget {
-  const CompactHotelGalleryCard({super.key});
+class DailyNotesCard extends StatelessWidget {
+  const DailyNotesCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AnimatedHoverLift(
       borderRadius: 28,
-      child: PressableScale(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const HotelGalleryScreen(),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: glassDecoration(
+          radius: 28,
+          opacity: 0.075,
+        ),
+        child: Column(
+          children: const [
+            DailyNoteRow(
+              icon: Icons.cloud_rounded,
+              title: 'Hava Durumu',
+              subtitle: 'İstanbul · 18°C · Hafif yağmurlu. İnce mont önerilir.',
+              accent: Color(0xFF7EA7D8),
             ),
-          );
-        },
-        child: Container(
-          height: 164,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.075),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.10),
+            SizedBox(height: 13),
+            DailyNoteRow(
+              icon: Icons.directions_bus_filled_rounded,
+              title: 'Transfer Notu',
+              subtitle: '18:30’da otel ana girişinden hareket edilecektir.',
+              accent: Color(0xFFD6B16A),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.30),
-                blurRadius: 24,
-                offset: const Offset(0, 16),
-              ),
-            ],
-          ),
-          child: Row(
+            SizedBox(height: 13),
+            DailyNoteRow(
+              icon: Icons.badge_rounded,
+              title: 'Etkinlik Notu',
+              subtitle: 'Yaka kartınızı gün boyunca yanınızda bulundurunuz.',
+              accent: Color(0xFF72C7C2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DailyNoteRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color accent;
+
+  const DailyNoteRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedGlowIconContainer(
+          accent: accent,
+          icon: icon,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(28),
-                ),
-                child: SizedBox(
-                  width: 145,
-                  height: double.infinity,
-                  child: Image.asset(
-                    demoHotelPhotos.first,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.white.withOpacity(0.08),
-                        child: const Icon(
-                          Icons.apartment_rounded,
-                          color: Colors.white,
-                          size: 44,
-                        ),
-                      );
-                    },
-                  ),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.1,
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 14, 14, 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Konaklama Galerisi',
-                        style: TextStyle(
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        demoGuest.hotelName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.58),
-                          decoration: TextDecoration.none,
-                          fontSize: 12.6,
-                          height: 1.25,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Text(
-                            '${demoHotelPhotos.length} fotoğraf',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.50),
-                              decoration: TextDecoration.none,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: 34,
-                            height: 34,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.10),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              color: Colors.white.withOpacity(0.72),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.56),
+                  decoration: TextDecoration.none,
+                  fontSize: 12.7,
+                  height: 1.32,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
