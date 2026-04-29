@@ -10,32 +10,40 @@ class ProgramScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool openedAsSubPage = Navigator.of(context).canPop();
+
     return AppPage(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 108),
+        padding: EdgeInsets.fromLTRB(
+          18,
+          16,
+          18,
+          openedAsSubPage ? 40 : 108,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HeaderTitle(
-              title: 'Etkinlik Programı',
-              subtitle: '14 Mayıs · 1. Gün',
-            ),
+            openedAsSubPage
+                ? const BackHeader(
+                    title: 'Etkinlik Programı',
+                    subtitle: '14 Mayıs · 1. Gün',
+                  )
+                : const HeaderTitle(
+                    title: 'Etkinlik Programı',
+                    subtitle: '14 Mayıs · 1. Gün',
+                  ),
             const SizedBox(height: 22),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: glassDecoration(),
-              child: Column(
-                children: List.generate(demoProgram.length, (index) {
-                  final item = demoProgram[index];
-                  final isLast = index == demoProgram.length - 1;
+            ...List.generate(demoProgram.length, (index) {
+              final item = demoProgram[index];
 
-                  return ProgramRow(
-                    item: item,
-                    isLast: isLast,
-                  );
-                }),
-              ),
-            ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ProgramCard(
+                  item: item,
+                  index: index,
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -43,85 +51,130 @@ class ProgramScreen extends StatelessWidget {
   }
 }
 
-class ProgramRow extends StatelessWidget {
+class ProgramCard extends StatelessWidget {
   final ProgramItem item;
-  final bool isLast;
+  final int index;
 
-  const ProgramRow({
+  const ProgramCard({
     super.key,
     required this.item,
-    required this.isLast,
+    required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
+    final bool isFirst = index == 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(isFirst ? 0.105 : 0.075),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isFirst
+              ? AppColors.champagne.withOpacity(0.34)
+              : Colors.white.withOpacity(0.10),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.28),
+            blurRadius: 22,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 56,
-            child: Text(
-              item.time,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: AppColors.champagne,
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(19),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isFirst
+                    ? const [
+                        AppColors.amberStart,
+                        AppColors.amberEnd,
+                      ]
+                    : const [
+                        AppColors.slateStart,
+                        AppColors.slateEnd,
+                      ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.22),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                item.time,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.2,
+                ),
               ),
             ),
           ),
-          Column(
-            children: [
-              Container(
-                width: 13,
-                height: 13,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.champagne,
-                ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    color: Colors.white.withOpacity(0.13),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 14),
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 25),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.2,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.location,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.60),
-                      fontWeight: FontWeight.w700,
+                ),
+                const SizedBox(height: 7),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 16,
+                      color: Colors.white.withOpacity(0.52),
                     ),
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    item.description,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.54),
-                      height: 1.32,
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        item.location,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.66),
+                          decoration: TextDecoration.none,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  item.description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.56),
+                    decoration: TextDecoration.none,
+                    fontSize: 13.5,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
