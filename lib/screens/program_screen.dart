@@ -4,6 +4,7 @@ import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/header_title.dart';
+import '../widgets/pressable_scale.dart';
 
 class ProgramScreen extends StatelessWidget {
   const ProgramScreen({super.key});
@@ -18,7 +19,7 @@ class ProgramScreen extends StatelessWidget {
           18,
           16,
           18,
-          openedAsSubPage ? 40 : 108,
+          openedAsSubPage ? 42 : 120,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,15 +33,30 @@ class ProgramScreen extends StatelessWidget {
                     title: 'Etkinlik Programı',
                     subtitle: '14 Mayıs · 1. Gün',
                   ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 20),
+            const ProgramHeroCard(),
+            const SizedBox(height: 18),
+            const DaySelector(),
+            const SizedBox(height: 18),
+            const Text(
+              'Günün Akışı',
+              style: TextStyle(
+                color: Colors.white,
+                decoration: TextDecoration.none,
+                fontSize: 21,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.4,
+              ),
+            ),
+            const SizedBox(height: 12),
             ...List.generate(demoProgram.length, (index) {
               final item = demoProgram[index];
-
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: ProgramCard(
+                child: ProgramTimelineCard(
                   item: item,
                   index: index,
+                  isLast: index == demoProgram.length - 1,
                 ),
               );
             }),
@@ -51,133 +67,430 @@ class ProgramScreen extends StatelessWidget {
   }
 }
 
-class ProgramCard extends StatelessWidget {
-  final ProgramItem item;
-  final int index;
-
-  const ProgramCard({
-    super.key,
-    required this.item,
-    required this.index,
-  });
+class ProgramHeroCard extends StatelessWidget {
+  const ProgramHeroCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bool isFirst = index == 0;
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(isFirst ? 0.105 : 0.075),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(30),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF07101B),
+            Color(0xFF14243A),
+            Color(0xFF263B58),
+          ],
+        ),
         border: Border.all(
-          color: isFirst
-              ? AppColors.champagne.withOpacity(0.34)
-              : Colors.white.withOpacity(0.10),
+          color: Colors.white.withOpacity(0.10),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.28),
-            blurRadius: 22,
-            offset: const Offset(0, 14),
+            color: const Color(0xFF263B58).withOpacity(0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.38),
+            blurRadius: 28,
+            offset: const Offset(0, 18),
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(19),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isFirst
-                    ? const [
-                        AppColors.amberStart,
-                        AppColors.amberEnd,
-                      ]
-                    : const [
-                        AppColors.slateStart,
-                        AppColors.slateEnd,
-                      ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.22),
-                  blurRadius: 12,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                item.time,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  decoration: TextDecoration.none,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.2,
-                ),
+          Positioned(
+            right: -58,
+            top: -68,
+            child: Container(
+              width: 190,
+              height: 190,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.champagne.withOpacity(0.10),
               ),
             ),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.none,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.2,
+          Positioned(
+            left: -70,
+            bottom: -86,
+            child: Container(
+              width: 190,
+              height: 190,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.petrolEnd.withOpacity(0.08),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: AppColors.champagne.withOpacity(0.14),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.champagne.withOpacity(0.22),
                   ),
-                ),
-                const SizedBox(height: 7),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      size: 16,
-                      color: Colors.white.withOpacity(0.52),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.champagne.withOpacity(0.12),
+                      blurRadius: 18,
+                      offset: const Offset(0, 10),
                     ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        item.location,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.66),
-                          decoration: TextDecoration.none,
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.event_available_rounded,
+                  color: AppColors.champagne,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '1. Gün Programı',
+                      style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Karşılama, oturumlar, öğle yemeği ve gala akışı.',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.62),
+                        decoration: TextDecoration.none,
+                        fontSize: 13.2,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 9),
-                Text(
-                  item.description,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.56),
-                    decoration: TextDecoration.none,
-                    fontSize: 13.5,
-                    height: 1.35,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DaySelector extends StatelessWidget {
+  const DaySelector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Expanded(
+          child: DayChip(
+            title: '1. Gün',
+            subtitle: '14 Mayıs',
+            selected: true,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: DayChip(
+            title: '2. Gün',
+            subtitle: '15 Mayıs',
+            selected: false,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: DayChip(
+            title: '3. Gün',
+            subtitle: '16 Mayıs',
+            selected: false,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class DayChip extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool selected;
+
+  const DayChip({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: () {},
+      child: Container(
+        height: 64,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.champagne.withOpacity(0.13)
+              : Colors.white.withOpacity(0.065),
+          borderRadius: BorderRadius.circular(21),
+          border: Border.all(
+            color: selected
+                ? AppColors.champagne.withOpacity(0.34)
+                : Colors.white.withOpacity(0.09),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: selected
+                  ? AppColors.champagne.withOpacity(0.10)
+                  : Colors.black.withOpacity(0.22),
+              blurRadius: 18,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              style: TextStyle(
+                color: selected ? AppColors.champagne : Colors.white,
+                decoration: TextDecoration.none,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              maxLines: 1,
+              style: TextStyle(
+                color: Colors.white.withOpacity(selected ? 0.70 : 0.46),
+                decoration: TextDecoration.none,
+                fontSize: 11.2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProgramTimelineCard extends StatelessWidget {
+  final ProgramItem item;
+  final int index;
+  final bool isLast;
+
+  const ProgramTimelineCard({
+    super.key,
+    required this.item,
+    required this.index,
+    required this.isLast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isActive = index == 0;
+
+    return PressableScale(
+      onTap: () {},
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(isActive ? 0.095 : 0.068),
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(
+            color: isActive
+                ? AppColors.champagne.withOpacity(0.28)
+                : Colors.white.withOpacity(0.09),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isActive
+                  ? AppColors.champagne.withOpacity(0.08)
+                  : Colors.black.withOpacity(0.24),
+              blurRadius: 22,
+              offset: const Offset(0, 14),
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.22),
+              blurRadius: 18,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ProgramTimeBox(
+              time: item.time,
+              active: isActive,
+            ),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isActive) ...[
+                    Container(
+                      height: 26,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.champagne.withOpacity(0.13),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.champagne.withOpacity(0.22),
+                        ),
+                      ),
+                      child: const Center(
+                        widthFactor: 1,
+                        child: Text(
+                          'SIRADAKİ AKIŞ',
+                          style: TextStyle(
+                            color: AppColors.champagne,
+                            decoration: TextDecoration.none,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.7,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_rounded,
+                        size: 16,
+                        color: Colors.white.withOpacity(0.50),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          item.location,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.62),
+                            decoration: TextDecoration.none,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    item.description,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.52),
+                      decoration: TextDecoration.none,
+                      fontSize: 13.2,
+                      height: 1.35,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white.withOpacity(0.32),
+              size: 24,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProgramTimeBox extends StatelessWidget {
+  final String time;
+  final bool active;
+
+  const ProgramTimeBox({
+    super.key,
+    required this.time,
+    required this.active,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(19),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: active
+              ? const [
+                  AppColors.amberStart,
+                  AppColors.amberEnd,
+                ]
+              : const [
+                  AppColors.slateStart,
+                  AppColors.slateEnd,
+                ],
+        ),
+        border: Border.all(
+          color: Colors.white.withOpacity(active ? 0.14 : 0.08),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: active
+                ? AppColors.champagne.withOpacity(0.16)
+                : Colors.black.withOpacity(0.24),
+            blurRadius: 16,
+            offset: const Offset(0, 9),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          time,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            decoration: TextDecoration.none,
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.2,
+          ),
+        ),
       ),
     );
   }
