@@ -1,11 +1,11 @@
 name: alpha_events_guest
-description: "Alpha Events Guest Portal"
+description: Alpha Events Guest Portal - corporate event guest web app.
 publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.9.0
 
 dependencies:
   flutter:
@@ -17,15 +17,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
 
   assets:
-    - assets/logos/Borusan.png
-    - assets/hotels/bosphorus.jpg
-    - assets/hotels/indir.jpg
-    - "assets/hotels/indir (1).jpg"
-    - assets/hotels/OIP.jpg
-    - "assets/hotels/OIP (1).jpg"
+    - assets/logos/
+    - assets/hotels/
