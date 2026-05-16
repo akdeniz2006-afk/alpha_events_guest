@@ -1,4 +1,4 @@
-class DemoGuest {
+﻿class DemoGuest {
   final String fullName;
   final String company;
   final String eventTitle;
@@ -25,6 +25,28 @@ class DemoGuest {
     required this.checkOut,
     required this.roommateName,
     required this.guestCode,
+  });
+}
+
+class AccommodationInfo {
+  final String wifiName;
+  final String wifiPassword;
+  final String breakfastTime;
+  final String breakfastLocation;
+  final String receptionPhone;
+  final String checkInNote;
+  final String checkOutNote;
+  final String luggageNote;
+
+  const AccommodationInfo({
+    required this.wifiName,
+    required this.wifiPassword,
+    required this.breakfastTime,
+    required this.breakfastLocation,
+    required this.receptionPhone,
+    required this.checkInNote,
+    required this.checkOutNote,
+    required this.luggageNote,
   });
 }
 
@@ -93,6 +115,17 @@ const DemoGuest demoGuest = DemoGuest(
   checkOut: '16 Mayıs 2026 / 12:00',
   roommateName: 'Elif Kaya',
   guestCode: 'ALP304',
+);
+
+const AccommodationInfo demoAccommodationInfo = AccommodationInfo(
+  wifiName: 'Swissotel_Guest',
+  wifiPassword: 'Borusan2026',
+  breakfastTime: '07:00 – 10:30',
+  breakfastLocation: 'Otel restoranı',
+  receptionPhone: '+90 212 000 00 00',
+  checkInNote: 'Check-in işlemi sonrası oda kartınızı resepsiyondan alabilirsiniz.',
+  checkOutNote: 'Check-out işlemlerinizi 12:00’ye kadar tamamlamanız rica olunur.',
+  luggageNote: 'Check-out sonrası bagajlarınızı resepsiyona teslim edebilirsiniz.',
 );
 
 const List<String> demoHotelPhotos = [
