@@ -12,14 +12,10 @@ class ClientLogoBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
+    return Center(
       child: Container(
         height: 58,
-        constraints: const BoxConstraints(
-          minWidth: 190,
-          maxWidth: 265,
-        ),
+        width: 238,
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 9),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.96),
