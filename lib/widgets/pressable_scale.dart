@@ -4,11 +4,7 @@ class PressableScale extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
 
-  const PressableScale({
-    super.key,
-    required this.child,
-    required this.onTap,
-  });
+  const PressableScale({super.key, required this.child, required this.onTap});
 
   @override
   State<PressableScale> createState() => _PressableScaleState();

@@ -95,11 +95,7 @@ class ThreeDInfoButton extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      icon,
-                      size: 21,
-                      color: Colors.white,
-                    ),
+                    child: Icon(icon, size: 21, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

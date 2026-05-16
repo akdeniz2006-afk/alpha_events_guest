@@ -14,8 +14,9 @@ class AlphaEventsGuestApp extends StatelessWidget {
   const AlphaEventsGuestApp({super.key});
 
   bool isRunningAsInstalledApp() {
-    final bool displayModeStandalone =
-        html.window.matchMedia('(display-mode: standalone)').matches;
+    final bool displayModeStandalone = html.window
+        .matchMedia('(display-mode: standalone)')
+        .matches;
 
     final bool iosStandalone =
         js_util.getProperty(html.window.navigator, 'standalone') == true;

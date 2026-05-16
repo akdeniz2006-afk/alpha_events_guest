@@ -15,12 +15,7 @@ class ProgramScreen extends StatelessWidget {
 
     return AppPage(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          18,
-          16,
-          18,
-          openedAsSubPage ? 42 : 120,
-        ),
+        padding: EdgeInsets.fromLTRB(18, 16, 18, openedAsSubPage ? 42 : 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,15 +75,9 @@ class ProgramHeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF07101B),
-            Color(0xFF14243A),
-            Color(0xFF263B58),
-          ],
+          colors: [Color(0xFF07101B), Color(0xFF14243A), Color(0xFF263B58)],
         ),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.10),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF263B58).withOpacity(0.28),
@@ -198,11 +187,7 @@ class DaySelector extends StatelessWidget {
     return Row(
       children: const [
         Expanded(
-          child: DayChip(
-            title: '1. Gün',
-            subtitle: '14 Mayıs',
-            selected: true,
-          ),
+          child: DayChip(title: '1. Gün', subtitle: '14 Mayıs', selected: true),
         ),
         SizedBox(width: 10),
         Expanded(
@@ -341,10 +326,7 @@ class ProgramTimelineCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProgramTimeBox(
-              time: item.time,
-              active: isActive,
-            ),
+            ProgramTimeBox(time: item.time, active: isActive),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
@@ -440,11 +422,7 @@ class ProgramTimeBox extends StatelessWidget {
   final String time;
   final bool active;
 
-  const ProgramTimeBox({
-    super.key,
-    required this.time,
-    required this.active,
-  });
+  const ProgramTimeBox({super.key, required this.time, required this.active});
 
   @override
   Widget build(BuildContext context) {
@@ -457,14 +435,8 @@ class ProgramTimeBox extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: active
-              ? const [
-                  AppColors.amberStart,
-                  AppColors.amberEnd,
-                ]
-              : const [
-                  AppColors.slateStart,
-                  AppColors.slateEnd,
-                ],
+              ? const [AppColors.amberStart, AppColors.amberEnd]
+              : const [AppColors.slateStart, AppColors.slateEnd],
         ),
         border: Border.all(
           color: Colors.white.withOpacity(active ? 0.14 : 0.08),

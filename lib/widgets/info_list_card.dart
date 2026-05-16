@@ -5,10 +5,7 @@ import 'app_page.dart';
 class InfoListCard extends StatelessWidget {
   final List<InfoListItem> items;
 
-  const InfoListCard({
-    super.key,
-    required this.items,
-  });
+  const InfoListCard({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {

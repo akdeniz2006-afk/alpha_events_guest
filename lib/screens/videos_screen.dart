@@ -37,18 +37,12 @@ class VideosScreen extends StatelessWidget {
 class VideoCard extends StatelessWidget {
   final VideoItem video;
 
-  const VideoCard({
-    super.key,
-    required this.video,
-  });
+  const VideoCard({super.key, required this.video});
 
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      onTap: () => showDemoMessage(
-        context,
-        '${video.title} oynatılacak.',
-      ),
+      onTap: () => showDemoMessage(context, '${video.title} oynatılacak.'),
       child: Container(
         height: 158,
         padding: const EdgeInsets.all(18),
@@ -57,10 +51,7 @@ class VideoCard extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF17575B),
-              Color(0xFF55A1A4),
-            ],
+            colors: [Color(0xFF17575B), Color(0xFF55A1A4)],
           ),
           border: Border.all(color: Colors.white.withOpacity(0.13)),
           boxShadow: [
@@ -155,9 +146,7 @@ void showDemoMessage(BuildContext context, String message) {
       content: Text(message),
       behavior: SnackBarBehavior.floating,
       backgroundColor: const Color(0xFF1F1F24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
   );
 }

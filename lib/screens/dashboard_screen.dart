@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
-import '../widgets/borusan_logo_badge.dart';
+import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
 
 import 'announcements_screen.dart';
@@ -19,9 +19,7 @@ class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   void openPage(BuildContext context, Widget page) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => page),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
   }
 
   @override
@@ -32,20 +30,11 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AnimatedEntrance(
-              delay: 0,
-              child: DashboardTopBar(),
-            ),
+            const AnimatedEntrance(delay: 0, child: DashboardTopBar()),
             const SizedBox(height: 18),
-            const AnimatedEntrance(
-              delay: 80,
-              child: CleanHeroCard(),
-            ),
+            const AnimatedEntrance(delay: 80, child: CleanHeroCard()),
             const SizedBox(height: 18),
-            const AnimatedEntrance(
-              delay: 140,
-              child: TodayCompactCard(),
-            ),
+            const AnimatedEntrance(delay: 140, child: TodayCompactCard()),
             const SizedBox(height: 22),
             const AnimatedEntrance(
               delay: 180,
@@ -87,10 +76,8 @@ class DashboardScreen extends StatelessWidget {
                     subtitle: 'Karşılama',
                     icon: Icons.mark_email_read_rounded,
                     accent: const Color(0xFFC7B58A),
-                    onTap: () => openPage(
-                      context,
-                      const ManagementMessageScreen(),
-                    ),
+                    onTap: () =>
+                        openPage(context, const ManagementMessageScreen()),
                   ),
                 ),
                 AnimatedEntrance(
@@ -131,10 +118,7 @@ class DashboardScreen extends StatelessWidget {
               child: DashboardSectionTitle(title: 'Günün Notları'),
             ),
             const SizedBox(height: 12),
-            const AnimatedEntrance(
-              delay: 500,
-              child: DailyNotesCard(),
-            ),
+            const AnimatedEntrance(delay: 500, child: DailyNotesCard()),
           ],
         ),
       ),
@@ -146,11 +130,7 @@ class AnimatedEntrance extends StatefulWidget {
   final Widget child;
   final int delay;
 
-  const AnimatedEntrance({
-    super.key,
-    required this.child,
-    required this.delay,
-  });
+  const AnimatedEntrance({super.key, required this.child, required this.delay});
 
   @override
   State<AnimatedEntrance> createState() => _AnimatedEntranceState();
@@ -210,9 +190,7 @@ class DashboardTopBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.12),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.12)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.22),
@@ -270,9 +248,7 @@ class DashboardTopBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.09),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.12),
-              ),
+              border: Border.all(color: Colors.white.withOpacity(0.12)),
             ),
             child: const Icon(
               Icons.person_rounded,
@@ -302,15 +278,9 @@ class CleanHeroCard extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF06080D),
-              Color(0xFF101827),
-              Color(0xFF22344E),
-            ],
+            colors: [Color(0xFF06080D), Color(0xFF101827), Color(0xFF22344E)],
           ),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF22344E).withOpacity(0.36),
@@ -345,9 +315,12 @@ class CleanHeroCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(
+                SizedBox(
                   height: 78,
-                  child: BorusanLogoBadge(),
+                  child: ClientLogoBadge(
+                    logoPath: demoGuest.clientLogoPath,
+                    clientName: demoGuest.clientName,
+                  ),
                 ),
                 const Spacer(),
                 Text(
@@ -419,11 +392,7 @@ class FloatingGlow extends StatefulWidget {
   final Color color;
   final double size;
 
-  const FloatingGlow({
-    super.key,
-    required this.color,
-    required this.size,
-  });
+  const FloatingGlow({super.key, required this.color, required this.size});
 
   @override
   State<FloatingGlow> createState() => _FloatingGlowState();
@@ -443,12 +412,10 @@ class _FloatingGlowState extends State<FloatingGlow>
       duration: const Duration(milliseconds: 3200),
     )..repeat(reverse: true);
 
-    animation = Tween<double>(begin: 0.92, end: 1.08).animate(
-      CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    animation = Tween<double>(
+      begin: 0.92,
+      end: 1.08,
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -464,10 +431,7 @@ class _FloatingGlowState extends State<FloatingGlow>
       child: Container(
         width: widget.size,
         height: widget.size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: widget.color,
-        ),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: widget.color),
       ),
     );
   }
@@ -477,11 +441,7 @@ class HeroMiniChip extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const HeroMiniChip({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
+  const HeroMiniChip({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -493,18 +453,12 @@ class HeroMiniChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.10),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: Colors.white.withOpacity(0.74),
-            ),
+            Icon(icon, size: 16, color: Colors.white.withOpacity(0.74)),
             const SizedBox(width: 6),
             Text(
               label,
@@ -534,9 +488,7 @@ class TodayCompactCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.075),
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.28),
@@ -657,9 +609,10 @@ class _AnimatedGlowIconBoxState extends State<AnimatedGlowIconBox>
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
 
-    glow = Tween<double>(begin: 0.10, end: 0.22).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeInOut),
-    );
+    glow = Tween<double>(
+      begin: 0.10,
+      end: 0.22,
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -679,9 +632,7 @@ class _AnimatedGlowIconBoxState extends State<AnimatedGlowIconBox>
           decoration: BoxDecoration(
             color: widget.accent.withOpacity(glow.value),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: widget.accent.withOpacity(0.26),
-            ),
+            border: Border.all(color: widget.accent.withOpacity(0.26)),
             boxShadow: [
               BoxShadow(
                 color: widget.accent.withOpacity(glow.value),
@@ -700,10 +651,7 @@ class _AnimatedGlowIconBoxState extends State<AnimatedGlowIconBox>
 class DashboardSectionTitle extends StatelessWidget {
   final String title;
 
-  const DashboardSectionTitle({
-    super.key,
-    required this.title,
-  });
+  const DashboardSectionTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -858,9 +806,10 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
       duration: const Duration(milliseconds: 2100),
     )..repeat(reverse: true);
 
-    glow = Tween<double>(begin: 0.14, end: 0.25).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeInOut),
-    );
+    glow = Tween<double>(
+      begin: 0.14,
+      end: 0.25,
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -880,9 +829,7 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
           decoration: BoxDecoration(
             color: widget.accent.withOpacity(glow.value),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: widget.accent.withOpacity(0.25),
-            ),
+            border: Border.all(color: widget.accent.withOpacity(0.25)),
             boxShadow: [
               BoxShadow(
                 color: widget.accent.withOpacity(glow.value * 0.7),
@@ -891,11 +838,7 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
               ),
             ],
           ),
-          child: Icon(
-            widget.icon,
-            size: 20,
-            color: widget.accent,
-          ),
+          child: Icon(widget.icon, size: 20, color: widget.accent),
         );
       },
     );
@@ -911,10 +854,7 @@ class DailyNotesCard extends StatelessWidget {
       borderRadius: 28,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: glassDecoration(
-          radius: 28,
-          opacity: 0.075,
-        ),
+        decoration: glassDecoration(radius: 28, opacity: 0.075),
         child: Column(
           children: const [
             DailyNoteRow(
@@ -963,10 +903,7 @@ class DailyNoteRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedGlowIconContainer(
-          accent: accent,
-          icon: icon,
-        ),
+        AnimatedGlowIconContainer(accent: accent, icon: icon),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

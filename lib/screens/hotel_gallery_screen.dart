@@ -173,9 +173,7 @@ class HotelPhotoCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.32),

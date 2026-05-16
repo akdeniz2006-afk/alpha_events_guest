@@ -15,12 +15,7 @@ class PhotosScreen extends StatelessWidget {
 
     return AppPage(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          18,
-          16,
-          18,
-          openedAsSubPage ? 42 : 120,
-        ),
+        padding: EdgeInsets.fromLTRB(18, 16, 18, openedAsSubPage ? 42 : 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -78,17 +73,16 @@ class PhotosHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath =
-        demoHotelPhotos.isNotEmpty ? demoHotelPhotos.first : '';
+    final String imagePath = demoHotelPhotos.isNotEmpty
+        ? demoHotelPhotos.first
+        : '';
 
     return Container(
       height: 238,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.10),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.38),
@@ -142,9 +136,7 @@ class PhotosHeroCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.14),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.14),
-                      ),
+                      border: Border.all(color: Colors.white.withOpacity(0.14)),
                     ),
                     child: const Icon(
                       Icons.photo_library_rounded,
@@ -198,10 +190,7 @@ class PhotoInfoCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(
-        radius: 26,
-        opacity: 0.070,
-      ),
+      decoration: glassDecoration(radius: 26, opacity: 0.070),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -211,9 +200,7 @@ class PhotoInfoCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.champagne.withOpacity(0.13),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.champagne.withOpacity(0.20),
-              ),
+              border: Border.all(color: AppColors.champagne.withOpacity(0.20)),
             ),
             child: const Icon(
               Icons.cloud_download_rounded,
@@ -273,19 +260,14 @@ class PhotoGridCard extends StatelessWidget {
           context: context,
           barrierColor: Colors.black.withOpacity(0.88),
           builder: (_) {
-            return PhotoPreviewDialog(
-              imagePath: imagePath,
-              index: index,
-            );
+            return PhotoPreviewDialog(imagePath: imagePath, index: index);
           },
         );
       },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.30),
@@ -325,9 +307,7 @@ class PhotoGridCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.34),
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.12),
-                    ),
+                    border: Border.all(color: Colors.white.withOpacity(0.12)),
                   ),
                   child: const Icon(
                     Icons.open_in_full_rounded,
@@ -401,10 +381,7 @@ class PhotoPreviewDialog extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(14),
-            decoration: glassDecoration(
-              radius: 22,
-              opacity: 0.090,
-            ),
+            decoration: glassDecoration(radius: 22, opacity: 0.090),
             child: Row(
               children: [
                 const Icon(
@@ -430,9 +407,7 @@ class PhotoPreviewDialog extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.10),
-                    ),
+                    border: Border.all(color: Colors.white.withOpacity(0.10)),
                   ),
                   child: const Row(
                     children: [

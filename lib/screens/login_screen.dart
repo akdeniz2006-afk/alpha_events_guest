@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
-import '../widgets/borusan_logo_badge.dart';
+import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
 import 'home_screen.dart';
 
@@ -44,11 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = passwordController.text.trim();
 
     if (email == demoEmail && password == demoPassword) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
       return;
     }
 
@@ -150,14 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.navyStart,
-                        AppColors.navyEnd,
-                      ],
+                      colors: [AppColors.navyStart, AppColors.navyEnd],
                     ),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.16),
-                    ),
+                    border: Border.all(color: Colors.white.withOpacity(0.16)),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.navyStart.withOpacity(0.36),
@@ -186,10 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: glassDecoration(
-                  radius: 22,
-                  opacity: 0.06,
-                ),
+                decoration: glassDecoration(radius: 22, opacity: 0.06),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -238,9 +228,7 @@ class LoginBrandHeader extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.08),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.12),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.12)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.24),
@@ -251,10 +239,7 @@ class LoginBrandHeader extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: Image.asset(
-              'assets/logos/Alpha.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/logos/Alpha.png', fit: BoxFit.cover),
           ),
         ),
         const SizedBox(width: 13),
@@ -304,15 +289,9 @@ class LoginHeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF06080D),
-            Color(0xFF101827),
-            Color(0xFF22344E),
-          ],
+          colors: [Color(0xFF06080D), Color(0xFF101827), Color(0xFF22344E)],
         ),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.10),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF22344E).withOpacity(0.34),
@@ -357,7 +336,10 @@ class LoginHeroCard extends StatelessWidget {
             children: [
               const SizedBox(
                 height: 76,
-                child: BorusanLogoBadge(),
+                child: ClientLogoBadge(
+                  logoPath: 'assets/logos/zurich_logo.png',
+                  clientName: 'Zurich Sigorta',
+                ),
               ),
               const Spacer(),
               Text(
@@ -388,9 +370,7 @@ class LoginHeroCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.10),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.10)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -464,11 +444,7 @@ class LoginTextField extends StatelessWidget {
         errorText: errorText,
         filled: true,
         fillColor: Colors.white.withOpacity(0.075),
-        prefixIcon: Icon(
-          icon,
-          color: Colors.white.withOpacity(0.58),
-          size: 21,
-        ),
+        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.58), size: 21),
         suffixIcon: suffixIcon,
         labelStyle: TextStyle(
           color: Colors.white.withOpacity(0.62),
@@ -480,9 +456,7 @@ class LoginTextField extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.10),
-          ),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.10)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),

@@ -6,11 +6,7 @@ class HeaderTitle extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const HeaderTitle({
-    super.key,
-    required this.title,
-    required this.subtitle,
-  });
+  const HeaderTitle({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +59,7 @@ class BackHeader extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const BackHeader({
-    super.key,
-    required this.title,
-    required this.subtitle,
-  });
+  const BackHeader({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -118,10 +110,7 @@ class BackHeader extends StatelessWidget {
 class SectionTitle extends StatelessWidget {
   final String title;
 
-  const SectionTitle({
-    super.key,
-    required this.title,
-  });
+  const SectionTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

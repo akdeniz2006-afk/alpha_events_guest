@@ -5,10 +5,7 @@ import '../theme/app_colors.dart';
 class AppPage extends StatelessWidget {
   final Widget child;
 
-  const AppPage({
-    super.key,
-    required this.child,
-  });
+  const AppPage({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +19,7 @@ class AppPage extends StatelessWidget {
           decoration: TextDecoration.none,
         ),
         child: IconTheme(
-          data: const IconThemeData(
-            color: Colors.white,
-          ),
+          data: const IconThemeData(color: Colors.white),
           child: Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -40,13 +35,8 @@ class AppPage extends StatelessWidget {
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 430,
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: child,
-                ),
+                constraints: const BoxConstraints(maxWidth: 430),
+                child: SafeArea(bottom: false, child: child),
               ),
             ),
           ),
@@ -56,16 +46,11 @@ class AppPage extends StatelessWidget {
   }
 }
 
-BoxDecoration glassDecoration({
-  double radius = 24,
-  double opacity = 0.075,
-}) {
+BoxDecoration glassDecoration({double radius = 24, double opacity = 0.075}) {
   return BoxDecoration(
     color: Colors.white.withOpacity(opacity),
     borderRadius: BorderRadius.circular(radius),
-    border: Border.all(
-      color: Colors.white.withOpacity(0.10),
-    ),
+    border: Border.all(color: Colors.white.withOpacity(0.10)),
     boxShadow: [
       BoxShadow(
         color: Colors.black.withOpacity(0.24),

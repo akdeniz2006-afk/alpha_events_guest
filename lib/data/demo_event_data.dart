@@ -1,4 +1,4 @@
-﻿class DemoGuest {
+class DemoGuest {
   final String fullName;
   final String company;
   final String eventTitle;
@@ -11,6 +11,8 @@
   final String checkOut;
   final String roommateName;
   final String guestCode;
+  final String clientName;
+  final String clientLogoPath;
 
   const DemoGuest({
     required this.fullName,
@@ -25,6 +27,8 @@
     required this.checkOut,
     required this.roommateName,
     required this.guestCode,
+    required this.clientName,
+    required this.clientLogoPath,
   });
 }
 
@@ -104,8 +108,8 @@ class VideoItem {
 
 const DemoGuest demoGuest = DemoGuest(
   fullName: 'Ayşe Demir',
-  company: 'Borusan',
-  eventTitle: 'Borusan Liderlik Zirvesi 2026',
+  company: 'Zurich Sigorta',
+  eventTitle: 'Zurich Sigorta Liderlik Buluşması 2026',
   eventDate: '14–16 Mayıs 2026',
   location: 'İstanbul',
   hotelName: 'Swissôtel The Bosphorus',
@@ -115,17 +119,22 @@ const DemoGuest demoGuest = DemoGuest(
   checkOut: '16 Mayıs 2026 / 12:00',
   roommateName: 'Elif Kaya',
   guestCode: 'ALP304',
+  clientName: 'Zurich Sigorta',
+  clientLogoPath: 'assets/logos/zurich_logo.png',
 );
 
 const AccommodationInfo demoAccommodationInfo = AccommodationInfo(
   wifiName: 'Swissotel_Guest',
-  wifiPassword: 'Borusan2026',
+  wifiPassword: 'Zurich2026',
   breakfastTime: '07:00 – 10:30',
   breakfastLocation: 'Otel restoranı',
   receptionPhone: '+90 212 000 00 00',
-  checkInNote: 'Check-in işlemi sonrası oda kartınızı resepsiyondan alabilirsiniz.',
-  checkOutNote: 'Check-out işlemlerinizi 12:00’ye kadar tamamlamanız rica olunur.',
-  luggageNote: 'Check-out sonrası bagajlarınızı resepsiyona teslim edebilirsiniz.',
+  checkInNote:
+      'Check-in işlemi sonrası oda kartınızı resepsiyondan alabilirsiniz.',
+  checkOutNote:
+      'Check-out işlemlerinizi 12:00’ye kadar tamamlamanız rica olunur.',
+  luggageNote:
+      'Check-out sonrası bagajlarınızı resepsiyona teslim edebilirsiniz.',
 );
 
 const List<String> demoHotelPhotos = [
@@ -147,7 +156,7 @@ const List<ProgramItem> demoProgram = [
     time: '10:00',
     title: 'Açılış Konuşması',
     location: 'Ana Salon',
-    description: 'Şirket yönetimi açılış konuşması.',
+    description: 'Zurich Sigorta yönetimi açılış konuşması.',
   ),
   ProgramItem(
     time: '11:30',
@@ -199,7 +208,8 @@ const List<ContactItem> demoContacts = [
 const List<AnnouncementItem> demoAnnouncements = [
   AnnouncementItem(
     title: 'Transfer Saati',
-    message: 'Akşam yemeği transferi saat 18:30’da otel ana girişinden hareket edecektir.',
+    message:
+        'Akşam programı yönlendirmesi saat 18:30’da otel ana girişinden yapılacaktır.',
     date: '14 Mayıs',
   ),
   AnnouncementItem(

@@ -9,11 +9,9 @@ class InstallPromptScreen extends StatelessWidget {
   const InstallPromptScreen({super.key});
 
   void continueToLogin(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   bool isIOS(BuildContext context) {
@@ -53,9 +51,7 @@ class InstallPromptScreen extends StatelessWidget {
                       Color(0xFF22344E),
                     ],
                   ),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.10),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.10)),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF22344E).withOpacity(0.34),
@@ -151,9 +147,7 @@ class InstallPromptScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.075),
                   borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.10),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.10)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.24),
@@ -205,14 +199,9 @@ class InstallPromptScreen extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.navyStart,
-                        AppColors.navyEnd,
-                      ],
+                      colors: [AppColors.navyStart, AppColors.navyEnd],
                     ),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.16),
-                    ),
+                    border: Border.all(color: Colors.white.withOpacity(0.16)),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.navyStart.withOpacity(0.36),
@@ -241,10 +230,7 @@ class InstallPromptScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: glassDecoration(
-                  radius: 22,
-                  opacity: 0.06,
-                ),
+                decoration: glassDecoration(radius: 22, opacity: 0.06),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -291,9 +277,7 @@ class InstallBrandHeader extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.08),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.12),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.12)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.24),
@@ -304,10 +288,7 @@ class InstallBrandHeader extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: Image.asset(
-              'assets/logos/Alpha.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/logos/Alpha.png', fit: BoxFit.cover),
           ),
         ),
         const SizedBox(width: 13),

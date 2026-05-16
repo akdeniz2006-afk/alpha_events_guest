@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
-import '../widgets/borusan_logo_badge.dart';
+import '../widgets/client_logo_badge.dart';
 import '../widgets/header_title.dart';
 import '../widgets/pressable_scale.dart';
 
@@ -30,12 +30,7 @@ class RoomScreen extends StatelessWidget {
 
     return AppPage(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          18,
-          16,
-          18,
-          openedAsSubPage ? 42 : 120,
-        ),
+        padding: EdgeInsets.fromLTRB(18, 16, 18, openedAsSubPage ? 42 : 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -83,10 +78,7 @@ class RoomScreen extends StatelessWidget {
               onTap: () => callHotel(context),
               child: Container(
                 padding: const EdgeInsets.all(16),
-                decoration: glassDecoration(
-                  radius: 26,
-                  opacity: 0.075,
-                ),
+                decoration: glassDecoration(radius: 26, opacity: 0.075),
                 child: Row(
                   children: [
                     Container(
@@ -162,15 +154,9 @@ class RoomHeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF06080D),
-            Color(0xFF101827),
-            Color(0xFF22344E),
-          ],
+          colors: [Color(0xFF06080D), Color(0xFF101827), Color(0xFF22344E)],
         ),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.10),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF22344E).withOpacity(0.34),
@@ -213,9 +199,12 @@ class RoomHeroCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
+              SizedBox(
                 height: 78,
-                child: BorusanLogoBadge(),
+                child: ClientLogoBadge(
+                  logoPath: demoGuest.clientLogoPath,
+                  clientName: demoGuest.clientName,
+                ),
               ),
               const Spacer(),
               Container(
@@ -224,9 +213,7 @@ class RoomHeroCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.12),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.12)),
                 ),
                 child: const Icon(
                   Icons.hotel_rounded,
@@ -272,10 +259,7 @@ class RoomStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(17),
-      decoration: glassDecoration(
-        radius: 28,
-        opacity: 0.075,
-      ),
+      decoration: glassDecoration(radius: 28, opacity: 0.075),
       child: Row(
         children: [
           Container(
@@ -284,9 +268,7 @@ class RoomStatusCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.champagne.withOpacity(0.13),
               borderRadius: BorderRadius.circular(19),
-              border: Border.all(
-                color: AppColors.champagne.withOpacity(0.22),
-              ),
+              border: Border.all(color: AppColors.champagne.withOpacity(0.22)),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.champagne.withOpacity(0.10),
@@ -341,10 +323,7 @@ class RoomDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: glassDecoration(
-        radius: 28,
-        opacity: 0.075,
-      ),
+      decoration: glassDecoration(radius: 28, opacity: 0.075),
       child: Column(
         children: [
           RoomDetailRow(
@@ -413,15 +392,9 @@ class RoomDetailRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: accent.withOpacity(0.13),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: accent.withOpacity(0.22),
-              ),
+              border: Border.all(color: accent.withOpacity(0.22)),
             ),
-            child: Icon(
-              icon,
-              color: accent,
-              size: 22,
-            ),
+            child: Icon(icon, color: accent, size: 22),
           ),
           const SizedBox(width: 13),
           Expanded(
@@ -477,10 +450,7 @@ class StayNotesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(
-        radius: 28,
-        opacity: 0.075,
-      ),
+      decoration: glassDecoration(radius: 28, opacity: 0.075),
       child: Column(
         children: [
           StayNoteRow(
@@ -495,7 +465,7 @@ class StayNotesCard extends StatelessWidget {
             icon: Icons.wifi_rounded,
             title: 'Wi-Fi',
             subtitle:
-                'Ağ: ${demoAccommodationInfo.wifiName} · Şifre: ${demoAccommodationInfo.wifiPassword}',
+                'Ağ: ${demoAccommodationInfo.wifiName} · �?ifre: ${demoAccommodationInfo.wifiPassword}',
             accent: const Color(0xFF7EA7D8),
           ),
           const SizedBox(height: 13),
@@ -543,15 +513,9 @@ class StayNoteRow extends StatelessWidget {
           decoration: BoxDecoration(
             color: accent.withOpacity(0.13),
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: accent.withOpacity(0.22),
-            ),
+            border: Border.all(color: accent.withOpacity(0.22)),
           ),
-          child: Icon(
-            icon,
-            color: accent,
-            size: 21,
-          ),
+          child: Icon(icon, color: accent, size: 21),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -592,9 +556,7 @@ void showRoomMessage(BuildContext context, String message) {
       content: Text(message),
       behavior: SnackBarBehavior.floating,
       backgroundColor: const Color(0xFF1F1F24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
   );
 }

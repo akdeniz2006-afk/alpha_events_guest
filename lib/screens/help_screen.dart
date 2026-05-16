@@ -45,12 +45,7 @@ class HelpScreen extends StatelessWidget {
 
     return AppPage(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          18,
-          16,
-          18,
-          openedAsSubPage ? 42 : 120,
-        ),
+        padding: EdgeInsets.fromLTRB(18, 16, 18, openedAsSubPage ? 42 : 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -109,15 +104,9 @@ class HelpHeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF07101B),
-            Color(0xFF14243A),
-            Color(0xFF263B58),
-          ],
+          colors: [Color(0xFF07101B), Color(0xFF14243A), Color(0xFF263B58)],
         ),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.10),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF263B58).withOpacity(0.26),
@@ -279,10 +268,7 @@ class ContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(
-        radius: 26,
-        opacity: 0.075,
-      ),
+      decoration: glassDecoration(radius: 26, opacity: 0.075),
       child: Row(
         children: [
           Container(
@@ -291,9 +277,7 @@ class ContactCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: accentColor.withOpacity(0.15),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: accentColor.withOpacity(0.22),
-              ),
+              border: Border.all(color: accentColor.withOpacity(0.22)),
               boxShadow: [
                 BoxShadow(
                   color: accentColor.withOpacity(0.08),
@@ -302,11 +286,7 @@ class ContactCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              color: accentColor,
-              size: 25,
-            ),
+            child: Icon(icon, color: accentColor, size: 25),
           ),
           const SizedBox(width: 13),
           Expanded(
@@ -395,15 +375,9 @@ class ContactActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.075),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withOpacity(0.10),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.10)),
           ),
-          child: Icon(
-            icon,
-            color: accentColor,
-            size: 21,
-          ),
+          child: Icon(icon, color: accentColor, size: 21),
         ),
       ),
     );
@@ -418,10 +392,7 @@ class EmergencyNoteCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(
-        radius: 24,
-        opacity: 0.060,
-      ),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -455,9 +426,7 @@ void showDemoMessage(BuildContext context, String message) {
       content: Text(message),
       behavior: SnackBarBehavior.floating,
       backgroundColor: const Color(0xFF1F1F24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
   );
 }

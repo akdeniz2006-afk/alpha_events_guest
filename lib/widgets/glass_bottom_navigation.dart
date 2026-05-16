@@ -25,9 +25,7 @@ class GlassBottomNavigation extends StatelessWidget {
     return Center(
       heightFactor: 1,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 430,
-        ),
+        constraints: const BoxConstraints(maxWidth: 430),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: ClipRRect(
@@ -112,8 +110,5 @@ class _NavItem {
   final IconData icon;
   final String label;
 
-  const _NavItem({
-    required this.icon,
-    required this.label,
-  });
+  const _NavItem({required this.icon, required this.label});
 }
