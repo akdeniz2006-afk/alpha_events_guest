@@ -648,6 +648,102 @@ class _AnimatedGlowIconBoxState extends State<AnimatedGlowIconBox>
   }
 }
 
+class WelcomeMessageCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const WelcomeMessageCard({super.key, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF101827), Color(0xFF1D2D45), Color(0xFF28496B)],
+          ),
+          border: Border.all(color: Colors.white24),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF28496B).withOpacity(0.22),
+              blurRadius: 26,
+              offset: Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: AppColors.champagne.withOpacity(0.14),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.champagne.withOpacity(0.24),
+                ),
+              ),
+              child: const Icon(
+                Icons.mark_email_read_rounded,
+                color: AppColors.champagne,
+                size: 29,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Ho? Geldiniz',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Zurich Sigorta Liderlik Bulu?mas? i?in haz?rlanan kar??lama mesaj?n? g?r?nt?leyin.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.58),
+                      decoration: TextDecoration.none,
+                      fontSize: 12.8,
+                      height: 1.35,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class DashboardSectionTitle extends StatelessWidget {
   final String title;
 
