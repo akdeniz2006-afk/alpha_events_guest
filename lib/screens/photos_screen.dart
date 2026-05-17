@@ -22,19 +22,19 @@ class PhotosScreen extends StatelessWidget {
             openedAsSubPage
                 ? const BackHeader(
                     title: 'Fotoğraflar',
-                    subtitle: 'Etkinlik ve konaklama görselleri',
+                    subtitle: 'Etkinlik fotoğrafları ve indirme alanı',
                   )
                 : const HeaderTitle(
                     title: 'Fotoğraflar',
-                    subtitle: 'Etkinlik ve konaklama görselleri',
+                    subtitle: 'Etkinlik fotoğrafları ve indirme alanı',
                   ),
             const SizedBox(height: 20),
             const PhotosHeroCard(),
             const SizedBox(height: 18),
-            const PhotoInfoCard(),
+            const PhotoDownloadInfoCard(),
             const SizedBox(height: 22),
             const Text(
-              'Galeri',
+              'Etkinlik Albümü',
               style: TextStyle(
                 color: Colors.white,
                 decoration: TextDecoration.none,
@@ -47,7 +47,7 @@ class PhotosScreen extends StatelessWidget {
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: demoHotelPhotos.length,
+              itemCount: demoEventPhotos.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 11,
@@ -55,12 +55,14 @@ class PhotosScreen extends StatelessWidget {
                 childAspectRatio: 0.82,
               ),
               itemBuilder: (context, index) {
-                return PhotoGridCard(
-                  imagePath: demoHotelPhotos[index],
+                return EventPhotoGridCard(
+                  imagePath: demoEventPhotos[index],
                   index: index,
                 );
               },
             ),
+            const SizedBox(height: 10),
+            const PhotoFooterNote(),
           ],
         ),
       ),
@@ -73,12 +75,12 @@ class PhotosHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = demoHotelPhotos.isNotEmpty
-        ? demoHotelPhotos.first
+    final String imagePath = demoEventPhotos.isNotEmpty
+        ? demoEventPhotos.first
         : '';
 
     return Container(
-      height: 238,
+      height: 246,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
@@ -117,10 +119,37 @@ class PhotosHeroCard extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.06),
-                    Colors.black.withOpacity(0.28),
-                    Colors.black.withOpacity(0.78),
+                    Colors.black.withOpacity(0.05),
+                    Colors.black.withOpacity(0.24),
+                    Colors.black.withOpacity(0.82),
                   ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 18,
+              top: 18,
+              child: Container(
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                decoration: BoxDecoration(
+                  color: AppColors.champagne.withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.champagne.withOpacity(0.24),
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    'ETKİNLİK ALBÜMÜ',
+                    style: TextStyle(
+                      color: AppColors.champagne,
+                      decoration: TextDecoration.none,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -131,17 +160,17 @@ class PhotosHeroCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.14),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: Colors.white.withOpacity(0.14)),
                     ),
                     child: const Icon(
-                      Icons.photo_library_rounded,
+                      Icons.collections_rounded,
                       color: Colors.white,
-                      size: 26,
+                      size: 27,
                     ),
                   ),
                   const SizedBox(width: 13),
@@ -154,18 +183,18 @@ class PhotosHeroCard extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             decoration: TextDecoration.none,
-                            fontSize: 21,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: -0.4,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          '${demoHotelPhotos.length} görsel hazır',
+                          '${demoEventPhotos.length} fotoğraf görüntülenebilir',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.68),
                             decoration: TextDecoration.none,
-                            fontSize: 12.5,
+                            fontSize: 12.6,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -182,8 +211,8 @@ class PhotosHeroCard extends StatelessWidget {
   }
 }
 
-class PhotoInfoCard extends StatelessWidget {
-  const PhotoInfoCard({super.key});
+class PhotoDownloadInfoCard extends StatelessWidget {
+  const PhotoDownloadInfoCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -195,17 +224,17 @@ class PhotoInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: AppColors.champagne.withOpacity(0.13),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(17),
               border: Border.all(color: AppColors.champagne.withOpacity(0.20)),
             ),
             child: const Icon(
               Icons.cloud_download_rounded,
               color: AppColors.champagne,
-              size: 23,
+              size: 24,
             ),
           ),
           const SizedBox(width: 13),
@@ -214,7 +243,7 @@ class PhotoInfoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Fotoğraf paylaşım alanı',
+                  'Fotoğrafları görüntüleyin ve indirin',
                   style: TextStyle(
                     color: Colors.white,
                     decoration: TextDecoration.none,
@@ -224,7 +253,7 @@ class PhotoInfoCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Etkinlik sonrası seçilen fotoğraflar burada görüntülenebilir ve indirilebilir olacak.',
+                  'Etkinlik sonrası seçilen fotoğraflar burada yayınlanır. Katılımcılar fotoğrafları önizleyebilir ve indirebilir.',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.58),
                     decoration: TextDecoration.none,
@@ -242,28 +271,30 @@ class PhotoInfoCard extends StatelessWidget {
   }
 }
 
-class PhotoGridCard extends StatelessWidget {
+class EventPhotoGridCard extends StatelessWidget {
   final String imagePath;
   final int index;
 
-  const PhotoGridCard({
+  const EventPhotoGridCard({
     super.key,
     required this.imagePath,
     required this.index,
   });
 
+  void openPreview(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.88),
+      builder: (_) {
+        return EventPhotoPreviewDialog(imagePath: imagePath, index: index);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      onTap: () {
-        showDialog(
-          context: context,
-          barrierColor: Colors.black.withOpacity(0.88),
-          builder: (_) {
-            return PhotoPreviewDialog(imagePath: imagePath, index: index);
-          },
-        );
-      },
+      onTap: () => openPreview(context),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -293,7 +324,8 @@ class PhotoGridCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.20),
+                      Colors.black.withOpacity(0.16),
+                      Colors.black.withOpacity(0.42),
                     ],
                   ),
                 ),
@@ -316,6 +348,44 @@ class PhotoGridCard extends StatelessWidget {
                   ),
                 ),
               ),
+              Positioned(
+                left: 9,
+                bottom: 9,
+                right: 9,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Fotoğraf ${index + 1}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 12.6,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.12),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.download_rounded,
+                        color: Colors.white,
+                        size: 17,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -324,15 +394,26 @@ class PhotoGridCard extends StatelessWidget {
   }
 }
 
-class PhotoPreviewDialog extends StatelessWidget {
+class EventPhotoPreviewDialog extends StatelessWidget {
   final String imagePath;
   final int index;
 
-  const PhotoPreviewDialog({
+  const EventPhotoPreviewDialog({
     super.key,
     required this.imagePath,
     required this.index,
   });
+
+  void showDownloadMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Fotoğraf ${index + 1} demo olarak indirilecek.'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1F1F24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -385,14 +466,14 @@ class PhotoPreviewDialog extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(
-                  Icons.image_rounded,
+                  Icons.collections_rounded,
                   color: AppColors.champagne,
                   size: 22,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Fotoğraf ${index + 1}',
+                    'Etkinlik fotoğrafı ${index + 1}',
                     style: const TextStyle(
                       color: Colors.white,
                       decoration: TextDecoration.none,
@@ -401,35 +482,76 @@ class PhotoPreviewDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.white.withOpacity(0.10)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.download_rounded,
-                        size: 17,
-                        color: Colors.white,
+                PressableScale(
+                  onTap: () => showDownloadMessage(context),
+                  child: Container(
+                    height: 38,
+                    padding: const EdgeInsets.symmetric(horizontal: 13),
+                    decoration: BoxDecoration(
+                      color: AppColors.champagne.withOpacity(0.13),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: AppColors.champagne.withOpacity(0.24),
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        'İndir',
-                        style: TextStyle(
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.download_rounded,
+                          size: 17,
+                          color: AppColors.champagne,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 6),
+                        Text(
+                          'İndir',
+                          style: TextStyle(
+                            color: AppColors.champagne,
+                            decoration: TextDecoration.none,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PhotoFooterNote extends StatelessWidget {
+  const PhotoFooterNote({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            color: AppColors.champagne,
+            size: 21,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Gerçek yayında etkinlik fotoğrafları admin panelden yüklenir. Katılımcılar seçilen fotoğrafları bu ekrandan görüntüleyebilir ve indirebilir.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.58),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

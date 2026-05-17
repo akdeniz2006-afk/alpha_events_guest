@@ -137,6 +137,15 @@ const AccommodationInfo demoAccommodationInfo = AccommodationInfo(
       'Check-out sonrası bagajlarınızı resepsiyona teslim edebilirsiniz.',
 );
 
+const List<String> demoEventPhotos = [
+  'assets/event_photos/zurich_event_1.jpg',
+  'assets/event_photos/zurich_event_2.jpg',
+  'assets/event_photos/zurich_event_3.jpg',
+  'assets/event_photos/zurich_event_4.jpg',
+  'assets/event_photos/zurich_event_5.jpg',
+  'assets/event_photos/zurich_event_6.jpg',
+];
+
 const List<String> demoHotelPhotos = [
   'assets/hotels/bosphorus.jpg',
   'assets/hotels/indir.jpg',
