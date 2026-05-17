@@ -14,6 +14,7 @@ import 'hotel_gallery_screen.dart';
 import 'management_message_screen.dart';
 import 'program_screen.dart';
 import 'videos_screen.dart';
+import 'evaluation_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -72,12 +73,11 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 300,
                   child: CompactDashboardButton(
-                    title: 'Hoş Geldiniz',
-                    subtitle: 'Karşılama',
-                    icon: Icons.mark_email_read_rounded,
+                    title: 'Değerlendirme',
+                    subtitle: 'Geri bildirim',
+                    icon: Icons.rate_review_rounded,
                     accent: const Color(0xFFC7B58A),
-                    onTap: () =>
-                        openPage(context, const ManagementMessageScreen()),
+                    onTap: () => openPage(context, const EvaluationScreen()),
                   ),
                 ),
                 AnimatedEntrance(

@@ -83,8 +83,8 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             ),
             const SizedBox(height: 14),
             EvaluationQuestionCard(
-              title: 'Alpha Events destek deneyimi nasıldı?',
-              subtitle: 'Koordinasyon, iletişim ve acil destek kolaylığı.',
+              title: 'Etkinlik destek deneyimi nasıldı?',
+              subtitle: 'Koordinasyon, iletişim ve destek süreçleri.',
               score: supportScore,
               onChanged: (value) {
                 setState(() {
@@ -145,9 +145,9 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4C82AE).withOpacity(0.28),
+                      color: Color(0xFF4C82AE).withOpacity(0.28),
                       blurRadius: 22,
-                      offset: const Offset(0, 14),
+                      offset: Offset(0, 14),
                     ),
                   ],
                 ),
@@ -189,9 +189,9 @@ class EvaluationHeroCard extends StatelessWidget {
         border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF263B58).withOpacity(0.25),
+            color: Color(0xFF263B58).withOpacity(0.25),
             blurRadius: 28,
-            offset: const Offset(0, 18),
+            offset: Offset(0, 18),
           ),
         ],
       ),
