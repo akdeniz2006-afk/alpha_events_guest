@@ -72,7 +72,7 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 300,
                   child: CompactDashboardButton(
-                    title: 'Yönetim Notu',
+                    title: 'Hoş Geldiniz',
                     subtitle: 'Karşılama',
                     icon: Icons.mark_email_read_rounded,
                     accent: const Color(0xFFC7B58A),
