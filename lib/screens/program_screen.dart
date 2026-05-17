@@ -32,7 +32,7 @@ class ProgramScreen extends StatelessWidget {
             const ProgramHeroCard(),
             const SizedBox(height: 18),
             const DaySelector(),
-            const SizedBox(height: 18),
+            const SizedBox(height: 22),
             const Text(
               'Günün Akışı',
               style: TextStyle(
@@ -46,6 +46,7 @@ class ProgramScreen extends StatelessWidget {
             const SizedBox(height: 12),
             ...List.generate(demoProgram.length, (index) {
               final item = demoProgram[index];
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: ProgramTimelineCard(
@@ -55,6 +56,8 @@ class ProgramScreen extends StatelessWidget {
                 ),
               );
             }),
+            const SizedBox(height: 8),
+            const ProgramInfoCard(),
           ],
         ),
       ),
@@ -159,7 +162,7 @@ class ProgramHeroCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Karşılama, oturumlar, öğle yemeği ve gala akışı.',
+                      'Karşılama, oturumlar, öğle yemeği ve akşam programı akışı.',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.62),
                         decoration: TextDecoration.none,
@@ -168,6 +171,20 @@ class ProgramHeroCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        const ProgramHeroPill(
+                          icon: Icons.calendar_today_rounded,
+                          label: '14 Mayıs',
+                        ),
+                        const SizedBox(width: 8),
+                        ProgramHeroPill(
+                          icon: Icons.location_on_rounded,
+                          label: demoGuest.location,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -175,6 +192,172 @@ class ProgramHeroCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ProgramHeroPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const ProgramHeroPill({super.key, required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 31,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white.withOpacity(0.68), size: 14),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.70),
+              decoration: TextDecoration.none,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramStatusCard extends StatelessWidget {
+  const ProgramStatusCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ProgramItem firstItem = demoProgram.first;
+    final ProgramItem secondItem = demoProgram.length > 1
+        ? demoProgram[1]
+        : demoProgram.first;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.075),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.26),
+            blurRadius: 22,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ProgramStatusRow(
+            time: firstItem.time,
+            title: firstItem.title,
+            location: firstItem.location,
+            accent: AppColors.champagne,
+            label: 'Sıradaki Akış',
+          ),
+          const SizedBox(height: 14),
+          ProgramStatusRow(
+            time: secondItem.time,
+            title: secondItem.title,
+            location: secondItem.location,
+            accent: const Color(0xFF72C7C2),
+            label: 'Devamında',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramStatusRow extends StatelessWidget {
+  final String time;
+  final String title;
+  final String location;
+  final Color accent;
+  final String label;
+
+  const ProgramStatusRow({
+    super.key,
+    required this.time,
+    required this.title,
+    required this.location,
+    required this.accent,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          height: 48,
+          width: 58,
+          decoration: BoxDecoration(
+            color: accent.withOpacity(0.13),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: accent.withOpacity(0.24)),
+          ),
+          child: Center(
+            child: Text(
+              time,
+              style: TextStyle(
+                color: accent,
+                decoration: TextDecoration.none,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 13),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: accent.withOpacity(0.86),
+                  decoration: TextDecoration.none,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                location,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.50),
+                  decoration: TextDecoration.none,
+                  fontSize: 12.2,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -292,9 +475,62 @@ class ProgramTimelineCard extends StatelessWidget {
     required this.isLast,
   });
 
+  IconData getIcon() {
+    final String title = item.title.toLowerCase();
+
+    if (title.contains('kahve')) {
+      return Icons.local_cafe_rounded;
+    }
+
+    if (title.contains('açılış')) {
+      return Icons.record_voice_over_rounded;
+    }
+
+    if (title.contains('strateji')) {
+      return Icons.insights_rounded;
+    }
+
+    if (title.contains('öğle') || title.contains('yemek')) {
+      return Icons.restaurant_rounded;
+    }
+
+    if (title.contains('gala')) {
+      return Icons.celebration_rounded;
+    }
+
+    return Icons.event_note_rounded;
+  }
+
+  Color getAccent() {
+    final String title = item.title.toLowerCase();
+
+    if (title.contains('kahve')) {
+      return AppColors.champagne;
+    }
+
+    if (title.contains('açılış')) {
+      return const Color(0xFF7EA7D8);
+    }
+
+    if (title.contains('strateji')) {
+      return const Color(0xFF9B8AD8);
+    }
+
+    if (title.contains('öğle') || title.contains('yemek')) {
+      return const Color(0xFF72C7C2);
+    }
+
+    if (title.contains('gala')) {
+      return const Color(0xFFD6B16A);
+    }
+
+    return Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isActive = index == 0;
+    final Color accent = getAccent();
 
     return PressableScale(
       onTap: () {},
@@ -305,13 +541,13 @@ class ProgramTimelineCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(26),
           border: Border.all(
             color: isActive
-                ? AppColors.champagne.withOpacity(0.28)
+                ? accent.withOpacity(0.30)
                 : Colors.white.withOpacity(0.09),
           ),
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? AppColors.champagne.withOpacity(0.08)
+                  ? accent.withOpacity(0.08)
                   : Colors.black.withOpacity(0.24),
               blurRadius: 22,
               offset: const Offset(0, 14),
@@ -326,7 +562,7 @@ class ProgramTimelineCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProgramTimeBox(time: item.time, active: isActive),
+            ProgramTimeBox(time: item.time, active: isActive, accent: accent),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
@@ -337,18 +573,16 @@ class ProgramTimelineCard extends StatelessWidget {
                       height: 26,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
-                        color: AppColors.champagne.withOpacity(0.13),
+                        color: accent.withOpacity(0.13),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: AppColors.champagne.withOpacity(0.22),
-                        ),
+                        border: Border.all(color: accent.withOpacity(0.22)),
                       ),
-                      child: const Center(
+                      child: Center(
                         widthFactor: 1,
                         child: Text(
                           'SIRADAKİ AKIŞ',
                           style: TextStyle(
-                            color: AppColors.champagne,
+                            color: accent,
                             decoration: TextDecoration.none,
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -359,17 +593,34 @@ class ProgramTimelineCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                   ],
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.2,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: accent.withOpacity(0.13),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: accent.withOpacity(0.20)),
+                        ),
+                        child: Icon(getIcon(), color: accent, size: 18),
+                      ),
+                      const SizedBox(width: 9),
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 9),
                   Row(
                     children: [
                       Icon(
@@ -405,12 +656,6 @@ class ProgramTimelineCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white.withOpacity(0.32),
-              size: 24,
-            ),
           ],
         ),
       ),
@@ -421,8 +666,14 @@ class ProgramTimelineCard extends StatelessWidget {
 class ProgramTimeBox extends StatelessWidget {
   final String time;
   final bool active;
+  final Color accent;
 
-  const ProgramTimeBox({super.key, required this.time, required this.active});
+  const ProgramTimeBox({
+    super.key,
+    required this.time,
+    required this.active,
+    required this.accent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -439,12 +690,14 @@ class ProgramTimeBox extends StatelessWidget {
               : const [AppColors.slateStart, AppColors.slateEnd],
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(active ? 0.14 : 0.08),
+          color: active
+              ? accent.withOpacity(0.26)
+              : Colors.white.withOpacity(0.08),
         ),
         boxShadow: [
           BoxShadow(
             color: active
-                ? AppColors.champagne.withOpacity(0.16)
+                ? accent.withOpacity(0.16)
                 : Colors.black.withOpacity(0.24),
             blurRadius: 16,
             offset: const Offset(0, 9),
@@ -463,6 +716,42 @@ class ProgramTimeBox extends StatelessWidget {
             letterSpacing: -0.2,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ProgramInfoCard extends StatelessWidget {
+  const ProgramInfoCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            color: AppColors.champagne,
+            size: 21,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Program akışı etkinlik süresince güncellenebilir. Güncel salon, saat ve yönlendirme bilgilerini bu ekrandan takip edebilirsiniz.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.58),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
