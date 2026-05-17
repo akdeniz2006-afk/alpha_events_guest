@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool obscurePassword = true;
   String? errorText;
 
-  static const String demoEmail = 'ayse.demir@borusan.com';
+  static const String demoEmail = 'ayse.demir@zurich.com';
   static const String demoPassword = 'ALP304';
 
   @override
