@@ -8,10 +8,10 @@ import '../widgets/app_page.dart';
 import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
 
+import 'activities_screen.dart';
 import 'announcements_screen.dart';
 import 'help_screen.dart';
 import 'hotel_gallery_screen.dart';
-import 'management_message_screen.dart';
 import 'program_screen.dart';
 import 'videos_screen.dart';
 import 'evaluation_screen.dart';
@@ -58,6 +58,16 @@ class DashboardScreen extends StatelessWidget {
                     icon: Icons.calendar_month_rounded,
                     accent: const Color(0xFF7EA7D8),
                     onTap: () => openPage(context, const ProgramScreen()),
+                  ),
+                ),
+                AnimatedEntrance(
+                  delay: 240,
+                  child: CompactDashboardButton(
+                    title: 'Aktiviteler',
+                    subtitle: 'Katılım onayı',
+                    icon: Icons.event_available_rounded,
+                    accent: const Color(0xFF72C7C2),
+                    onTap: () => openPage(context, const ActivitiesScreen()),
                   ),
                 ),
                 AnimatedEntrance(
@@ -700,7 +710,7 @@ class WelcomeMessageCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Ho? Geldiniz',
+                    'Hoş Geldiniz',
                     style: TextStyle(
                       color: Colors.white,
                       decoration: TextDecoration.none,
@@ -711,7 +721,7 @@ class WelcomeMessageCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Zurich Sigorta Liderlik Bulu?mas? i?in haz?rlanan kar??lama mesaj?n? g?r?nt?leyin.',
+                    'Zurich Sigorta Liderlik Buluşması için hazırlanan karşılama mesajını görüntüleyin.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.58),
                       decoration: TextDecoration.none,
