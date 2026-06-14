@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../data/demo_event_data.dart';
@@ -6,12 +7,44 @@ import '../widgets/app_page.dart';
 import '../widgets/header_title.dart';
 import '../widgets/pressable_scale.dart';
 
-class ProgramScreen extends StatelessWidget {
+class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
+
+  @override
+  State<ProgramScreen> createState() => _ProgramScreenState();
+}
+
+class _ProgramScreenState extends State<ProgramScreen> {
+  int selectedDayIndex = 0;
+
+  static const String eventId = 'zurich_2026';
+
+  final List<ProgramDayData> days = const [
+    ProgramDayData(title: '1. Gün', subtitle: '14 Mayıs'),
+    ProgramDayData(title: '2. Gün', subtitle: '15 Mayıs'),
+    ProgramDayData(title: '3. Gün', subtitle: '16 Mayıs'),
+  ];
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getProgramStream() {
+    return FirebaseFirestore.instance.collection('event_program').snapshots();
+  }
+
+  List<FirestoreProgramItem> buildProgramItems(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final items = snapshot.docs.map((doc) {
+      return FirestoreProgramItem.fromMap(doc.data());
+    }).toList();
+
+    items.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool openedAsSubPage = Navigator.of(context).canPop();
+    final ProgramDayData selectedDay = days[selectedDayIndex];
 
     return AppPage(
       child: SingleChildScrollView(
@@ -20,18 +53,26 @@ class ProgramScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             openedAsSubPage
-                ? const BackHeader(
+                ? BackHeader(
                     title: 'Etkinlik Programı',
-                    subtitle: '14 Mayıs · 1. Gün',
+                    subtitle: '${selectedDay.subtitle} · ${selectedDay.title}',
                   )
-                : const HeaderTitle(
+                : HeaderTitle(
                     title: 'Etkinlik Programı',
-                    subtitle: '14 Mayıs · 1. Gün',
+                    subtitle: '${selectedDay.subtitle} · ${selectedDay.title}',
                   ),
             const SizedBox(height: 20),
-            const ProgramHeroCard(),
+            ProgramHeroCard(selectedDay: selectedDay),
             const SizedBox(height: 18),
-            const DaySelector(),
+            DaySelector(
+              days: days,
+              selectedDayIndex: selectedDayIndex,
+              onDaySelected: (index) {
+                setState(() {
+                  selectedDayIndex = index;
+                });
+              },
+            ),
             const SizedBox(height: 22),
             const Text(
               'Günün Akışı',
@@ -44,20 +85,55 @@ class ProgramScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ...List.generate(demoProgram.length, (index) {
-              final item = demoProgram[index];
+            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: getProgramStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const ProgramLoadingCard();
+                }
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: ProgramTimelineCard(
-                  item: item,
-                  index: index,
-                  isLast: index == demoProgram.length - 1,
-                ),
-              );
-            }),
-            const SizedBox(height: 8),
-            const ProgramInfoCard(),
+                if (snapshot.hasError) {
+                  return ProgramErrorCard(errorText: snapshot.error.toString());
+                }
+
+                final snapshotData = snapshot.data;
+
+                if (snapshotData == null) {
+                  return ProgramEmptyCard(dayTitle: selectedDay.title);
+                }
+
+                final items = buildProgramItems(snapshotData);
+
+                final visibleItems = items.where((item) {
+                  return item.eventId == eventId &&
+                      item.guestAppStatus == 'Yayında' &&
+                      item.dayIndex == selectedDayIndex;
+                }).toList();
+
+                if (visibleItems.isEmpty) {
+                  return ProgramEmptyCard(dayTitle: selectedDay.title);
+                }
+
+                return Column(
+                  children: [
+                    ...List.generate(visibleItems.length, (index) {
+                      final item = visibleItems[index];
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: ProgramTimelineCard(
+                          item: item,
+                          index: index,
+                          isLast: index == visibleItems.length - 1,
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 8),
+                    const ProgramInfoCard(),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -66,7 +142,9 @@ class ProgramScreen extends StatelessWidget {
 }
 
 class ProgramHeroCard extends StatelessWidget {
-  const ProgramHeroCard({super.key});
+  final ProgramDayData selectedDay;
+
+  const ProgramHeroCard({super.key, required this.selectedDay});
 
   @override
   Widget build(BuildContext context) {
@@ -150,9 +228,9 @@ class ProgramHeroCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '1. Gün Programı',
-                      style: TextStyle(
+                    Text(
+                      '${selectedDay.title} Programı',
+                      style: const TextStyle(
                         color: Colors.white,
                         decoration: TextDecoration.none,
                         fontSize: 21,
@@ -162,7 +240,7 @@ class ProgramHeroCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Karşılama, oturumlar, öğle yemeği ve akşam programı akışı.',
+                      'Program akışı Firestore üzerinden canlı olarak güncellenir.',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.62),
                         decoration: TextDecoration.none,
@@ -174,9 +252,9 @@ class ProgramHeroCard extends StatelessWidget {
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        const ProgramHeroPill(
+                        ProgramHeroPill(
                           icon: Icons.calendar_today_rounded,
-                          label: '14 Mayıs',
+                          label: selectedDay.subtitle,
                         ),
                         const SizedBox(width: 8),
                         ProgramHeroPill(
@@ -231,164 +309,36 @@ class ProgramHeroPill extends StatelessWidget {
   }
 }
 
-class ProgramStatusCard extends StatelessWidget {
-  const ProgramStatusCard({super.key});
+class DaySelector extends StatelessWidget {
+  final List<ProgramDayData> days;
+  final int selectedDayIndex;
+  final ValueChanged<int> onDaySelected;
 
-  @override
-  Widget build(BuildContext context) {
-    final ProgramItem firstItem = demoProgram.first;
-    final ProgramItem secondItem = demoProgram.length > 1
-        ? demoProgram[1]
-        : demoProgram.first;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.075),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withOpacity(0.10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.26),
-            blurRadius: 22,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ProgramStatusRow(
-            time: firstItem.time,
-            title: firstItem.title,
-            location: firstItem.location,
-            accent: AppColors.champagne,
-            label: 'Sıradaki Akış',
-          ),
-          const SizedBox(height: 14),
-          ProgramStatusRow(
-            time: secondItem.time,
-            title: secondItem.title,
-            location: secondItem.location,
-            accent: const Color(0xFF72C7C2),
-            label: 'Devamında',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProgramStatusRow extends StatelessWidget {
-  final String time;
-  final String title;
-  final String location;
-  final Color accent;
-  final String label;
-
-  const ProgramStatusRow({
+  const DaySelector({
     super.key,
-    required this.time,
-    required this.title,
-    required this.location,
-    required this.accent,
-    required this.label,
+    required this.days,
+    required this.selectedDayIndex,
+    required this.onDaySelected,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [
-        Container(
-          height: 48,
-          width: 58,
-          decoration: BoxDecoration(
-            color: accent.withOpacity(0.13),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: accent.withOpacity(0.24)),
-          ),
-          child: Center(
-            child: Text(
-              time,
-              style: TextStyle(
-                color: accent,
-                decoration: TextDecoration.none,
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-              ),
+      children: List.generate(days.length, (index) {
+        final day = days[index];
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: index == days.length - 1 ? 0 : 10),
+            child: DayChip(
+              title: day.title,
+              subtitle: day.subtitle,
+              selected: selectedDayIndex == index,
+              onTap: () => onDaySelected(index),
             ),
           ),
-        ),
-        const SizedBox(width: 13),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: accent.withOpacity(0.86),
-                  decoration: TextDecoration.none,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  decoration: TextDecoration.none,
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                location,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.50),
-                  decoration: TextDecoration.none,
-                  fontSize: 12.2,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class DaySelector extends StatelessWidget {
-  const DaySelector({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: const [
-        Expanded(
-          child: DayChip(title: '1. Gün', subtitle: '14 Mayıs', selected: true),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: DayChip(
-            title: '2. Gün',
-            subtitle: '15 Mayıs',
-            selected: false,
-          ),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: DayChip(
-            title: '3. Gün',
-            subtitle: '16 Mayıs',
-            selected: false,
-          ),
-        ),
-      ],
+        );
+      }),
     );
   }
 }
@@ -397,18 +347,20 @@ class DayChip extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool selected;
+  final VoidCallback onTap;
 
   const DayChip({
     super.key,
     required this.title,
     required this.subtitle,
     required this.selected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return PressableScale(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -464,7 +416,7 @@ class DayChip extends StatelessWidget {
 }
 
 class ProgramTimelineCard extends StatelessWidget {
-  final ProgramItem item;
+  final FirestoreProgramItem item;
   final int index;
   final bool isLast;
 
@@ -721,6 +673,121 @@ class ProgramTimeBox extends StatelessWidget {
   }
 }
 
+class ProgramLoadingCard extends StatelessWidget {
+  const ProgramLoadingCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              color: AppColors.champagne,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            'Program yükleniyor...',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.66),
+              decoration: TextDecoration.none,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramErrorCard extends StatelessWidget {
+  final String errorText;
+
+  const ProgramErrorCard({super.key, required this.errorText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE08A8A).withOpacity(0.10),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE08A8A).withOpacity(0.22)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: Color(0xFFE08A8A),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Program bilgisi alınamadı.\n$errorText',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.72),
+                decoration: TextDecoration.none,
+                fontSize: 12.5,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramEmptyCard extends StatelessWidget {
+  final String dayTitle;
+
+  const ProgramEmptyCard({super.key, required this.dayTitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.event_busy_rounded,
+            color: AppColors.champagne,
+            size: 23,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '$dayTitle için yayınlanmış program bulunmuyor.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.62),
+                decoration: TextDecoration.none,
+                fontSize: 13,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ProgramInfoCard extends StatelessWidget {
   const ProgramInfoCard({super.key});
 
@@ -753,6 +820,51 @@ class ProgramInfoCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ProgramDayData {
+  final String title;
+  final String subtitle;
+
+  const ProgramDayData({
+    required this.title,
+    required this.subtitle,
+  });
+}
+
+class FirestoreProgramItem {
+  final String eventId;
+  final String guestAppStatus;
+  final int dayIndex;
+  final String time;
+  final String title;
+  final String location;
+  final String description;
+  final int sortOrder;
+
+  const FirestoreProgramItem({
+    required this.eventId,
+    required this.guestAppStatus,
+    required this.dayIndex,
+    required this.time,
+    required this.title,
+    required this.location,
+    required this.description,
+    required this.sortOrder,
+  });
+
+  factory FirestoreProgramItem.fromMap(Map<String, dynamic> map) {
+    return FirestoreProgramItem(
+      eventId: (map['eventId'] ?? '').toString(),
+      guestAppStatus: (map['guestAppStatus'] ?? '').toString(),
+      dayIndex: int.tryParse((map['dayIndex'] ?? '0').toString()) ?? 0,
+      time: (map['time'] ?? '').toString(),
+      title: (map['title'] ?? '').toString(),
+      location: (map['location'] ?? '').toString(),
+      description: (map['description'] ?? '').toString(),
+      sortOrder: int.tryParse((map['sortOrder'] ?? '0').toString()) ?? 0,
     );
   }
 }
