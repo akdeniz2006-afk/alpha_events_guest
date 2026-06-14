@@ -41,6 +41,13 @@ class _ProgramScreenState extends State<ProgramScreen> {
     return items;
   }
 
+  void openProgramDetail(FirestoreProgramItem item) {
+    showDialog(
+      context: context,
+      builder: (_) => ProgramDetailDialog(item: item),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool openedAsSubPage = Navigator.of(context).canPop();
@@ -125,6 +132,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
                           item: item,
                           index: index,
                           isLast: index == visibleItems.length - 1,
+                          onTap: () => openProgramDetail(item),
                         ),
                       );
                     }),
@@ -419,12 +427,14 @@ class ProgramTimelineCard extends StatelessWidget {
   final FirestoreProgramItem item;
   final int index;
   final bool isLast;
+  final VoidCallback onTap;
 
   const ProgramTimelineCard({
     super.key,
     required this.item,
     required this.index,
     required this.isLast,
+    required this.onTap,
   });
 
   IconData getIcon() {
@@ -485,7 +495,7 @@ class ProgramTimelineCard extends StatelessWidget {
     final Color accent = getAccent();
 
     return PressableScale(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
@@ -570,6 +580,11 @@ class ProgramTimelineCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Colors.white.withOpacity(0.42),
+                        size: 22,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 9),
@@ -594,6 +609,30 @@ class ProgramTimelineCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (item.speaker.isNotEmpty) ...[
+                    const SizedBox(height: 7),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.record_voice_over_rounded,
+                          size: 16,
+                          color: Colors.white.withOpacity(0.50),
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            item.speaker,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.58),
+                              decoration: TextDecoration.none,
+                              fontSize: 12.8,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Text(
                     item.description,
@@ -668,6 +707,318 @@ class ProgramTimeBox extends StatelessWidget {
             letterSpacing: -0.2,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ProgramDetailDialog extends StatelessWidget {
+  final FirestoreProgramItem item;
+
+  const ProgramDetailDialog({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+      child: Container(
+        width: 520,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF101722),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white.withOpacity(0.10)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.45),
+              blurRadius: 34,
+              offset: const Offset(0, 20),
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      color: AppColors.champagne.withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.champagne.withOpacity(0.22),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.event_note_rounded,
+                      color: AppColors.champagne,
+                      size: 29,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: Colors.white.withOpacity(0.75),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              ProgramDetailPillRow(item: item),
+              const SizedBox(height: 18),
+              ProgramDetailSection(
+                title: 'Oturum Bilgileri',
+                children: [
+                  ProgramDetailRow(
+                    icon: Icons.schedule_rounded,
+                    label: 'Saat',
+                    value: item.time,
+                  ),
+                  ProgramDetailRow(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Gün',
+                    value: '${item.dayTitle} · ${item.dayDate}',
+                  ),
+                  ProgramDetailRow(
+                    icon: Icons.location_on_rounded,
+                    label: 'Lokasyon',
+                    value: item.location,
+                  ),
+                  if (item.speaker.isNotEmpty)
+                    ProgramDetailRow(
+                      icon: Icons.record_voice_over_rounded,
+                      label: 'Konuşmacı',
+                      value: item.speaker,
+                    ),
+                  if (item.owner.isNotEmpty)
+                    ProgramDetailRow(
+                      icon: Icons.person_rounded,
+                      label: 'Sorumlu',
+                      value: item.owner,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              ProgramDetailSection(
+                title: 'Açıklama',
+                children: [
+                  Text(
+                    item.description.isEmpty
+                        ? 'Bu oturum için açıklama henüz eklenmemiştir.'
+                        : item.description,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.70),
+                      decoration: TextDecoration.none,
+                      fontSize: 13.5,
+                      height: 1.45,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.champagne.withOpacity(0.16),
+                    foregroundColor: AppColors.champagne,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  child: const Text(
+                    'Kapat',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProgramDetailPillRow extends StatelessWidget {
+  final FirestoreProgramItem item;
+
+  const ProgramDetailPillRow({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        ProgramDetailPill(
+          icon: Icons.schedule_rounded,
+          label: item.time,
+        ),
+        ProgramDetailPill(
+          icon: Icons.calendar_today_rounded,
+          label: item.dayTitle,
+        ),
+        ProgramDetailPill(
+          icon: Icons.visibility_rounded,
+          label: item.guestAppStatus,
+        ),
+      ],
+    );
+  }
+}
+
+class ProgramDetailPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const ProgramDetailPill({
+    super.key,
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: Colors.white.withOpacity(0.09)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.champagne, size: 15),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.76),
+              decoration: TextDecoration.none,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramDetailSection extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+
+  const ProgramDetailSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.065),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class ProgramDetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const ProgramDetailRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 11),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColors.champagne, size: 18),
+          const SizedBox(width: 9),
+          SizedBox(
+            width: 86,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.48),
+                decoration: TextDecoration.none,
+                fontSize: 12.2,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.76),
+                decoration: TextDecoration.none,
+                fontSize: 12.8,
+                height: 1.3,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -838,9 +1189,14 @@ class FirestoreProgramItem {
   final String eventId;
   final String guestAppStatus;
   final int dayIndex;
+  final String dayTitle;
+  final String dayDate;
   final String time;
   final String title;
   final String location;
+  final String speaker;
+  final String owner;
+  final String status;
   final String description;
   final int sortOrder;
 
@@ -848,9 +1204,14 @@ class FirestoreProgramItem {
     required this.eventId,
     required this.guestAppStatus,
     required this.dayIndex,
+    required this.dayTitle,
+    required this.dayDate,
     required this.time,
     required this.title,
     required this.location,
+    required this.speaker,
+    required this.owner,
+    required this.status,
     required this.description,
     required this.sortOrder,
   });
@@ -860,9 +1221,14 @@ class FirestoreProgramItem {
       eventId: (map['eventId'] ?? '').toString(),
       guestAppStatus: (map['guestAppStatus'] ?? '').toString(),
       dayIndex: int.tryParse((map['dayIndex'] ?? '0').toString()) ?? 0,
+      dayTitle: (map['dayTitle'] ?? '').toString(),
+      dayDate: (map['dayDate'] ?? '').toString(),
       time: (map['time'] ?? '').toString(),
       title: (map['title'] ?? '').toString(),
       location: (map['location'] ?? '').toString(),
+      speaker: (map['speaker'] ?? '').toString(),
+      owner: (map['owner'] ?? '').toString(),
+      status: (map['status'] ?? '').toString(),
       description: (map['description'] ?? '').toString(),
       sortOrder: int.tryParse((map['sortOrder'] ?? '0').toString()) ?? 0,
     );
