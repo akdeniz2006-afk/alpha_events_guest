@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/client_logo_badge.dart';
@@ -11,8 +11,21 @@ import '../widgets/pressable_scale.dart';
 class RoomScreen extends StatelessWidget {
   const RoomScreen({super.key});
 
-  Future<void> callHotel(BuildContext context) async {
-    final cleanPhone = demoAccommodationInfo.receptionPhone.replaceAll(' ', '');
+  static const String eventId = 'zurich_2026';
+  static const String guestId = 'demo_guest';
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getRoomStream() {
+    // GEÇİCİ TEST:
+    // Şimdilik filtre kullanmadan event_rooms collection içindeki ilk odayı okuyoruz.
+    // Bu çalışırsa sonra eventId / guestId filtresini tekrar güvenli şekilde ekleyeceğiz.
+    return FirebaseFirestore.instance
+        .collection('event_rooms')
+        .limit(1)
+        .snapshots();
+  }
+
+  Future<void> callHotel(BuildContext context, RoomInfo room) async {
+    final cleanPhone = room.receptionPhone.replaceAll(' ', '');
     final uri = Uri.parse('tel:$cleanPhone');
 
     if (!await launchUrl(uri)) {
@@ -22,6 +35,11 @@ class RoomScreen extends StatelessWidget {
         'Arama başlatılamadı. Bu özellik cihaz/tarayıcı desteğine bağlıdır.',
       );
     }
+  }
+
+  RoomInfo? buildRoomInfo(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    if (snapshot.docs.isEmpty) return null;
+    return RoomInfo.fromFirestore(snapshot.docs.first.data());
   }
 
   @override
@@ -44,94 +62,118 @@ class RoomScreen extends StatelessWidget {
                     subtitle: 'Konaklama bilgileriniz',
                   ),
             const SizedBox(height: 20),
-            const RoomHeroCard(),
-            const SizedBox(height: 18),
-            const RoomStatusCard(),
-            const SizedBox(height: 22),
-            const Text(
-              'Oda Bilgileri',
-              style: TextStyle(
-                color: Colors.white,
-                decoration: TextDecoration.none,
-                fontSize: 21,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const RoomDetailsCard(),
-            const SizedBox(height: 18),
-            const Text(
-              'Konaklama Notları',
-              style: TextStyle(
-                color: Colors.white,
-                decoration: TextDecoration.none,
-                fontSize: 21,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const StayNotesCard(),
-            const SizedBox(height: 18),
-            PressableScale(
-              onTap: () => callHotel(context),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: glassDecoration(radius: 26, opacity: 0.075),
-                child: Row(
+            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: getRoomStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const RoomLoadingState();
+                }
+
+                if (snapshot.hasError) {
+                  return RoomErrorState(errorText: snapshot.error.toString());
+                }
+
+                final room = snapshot.hasData ? buildRoomInfo(snapshot.data!) : null;
+
+                if (room == null) {
+                  return const EmptyRoomState();
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.champagne.withOpacity(0.13),
-                        borderRadius: BorderRadius.circular(17),
-                        border: Border.all(
-                          color: AppColors.champagne.withOpacity(0.20),
+                    RoomHeroCard(room: room),
+                    const SizedBox(height: 18),
+                    RoomStatusCard(room: room),
+                    const SizedBox(height: 22),
+                    const Text(
+                      'Oda Bilgileri',
+                      style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    RoomDetailsCard(room: room),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Konaklama Notları',
+                      style: TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    StayNotesCard(room: room),
+                    const SizedBox(height: 18),
+                    PressableScale(
+                      onTap: () => callHotel(context, room),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: glassDecoration(radius: 26, opacity: 0.075),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.champagne.withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: AppColors.champagne.withOpacity(0.20),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.phone_rounded,
+                                color: AppColors.champagne,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 13),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Otel Resepsiyonunu Ara',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      decoration: TextDecoration.none,
+                                      fontSize: 15.5,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    room.receptionPhone,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.56),
+                                      decoration: TextDecoration.none,
+                                      fontSize: 12.5,
+                                      height: 1.32,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: Colors.white.withOpacity(0.56),
+                            ),
+                          ],
                         ),
                       ),
-                      child: const Icon(
-                        Icons.phone_rounded,
-                        color: AppColors.champagne,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 13),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Otel Resepsiyonunu Ara',
-                            style: TextStyle(
-                              color: Colors.white,
-                              decoration: TextDecoration.none,
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            demoAccommodationInfo.receptionPhone,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.56),
-                              decoration: TextDecoration.none,
-                              fontSize: 12.5,
-                              height: 1.32,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: Colors.white.withOpacity(0.56),
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -140,8 +182,99 @@ class RoomScreen extends StatelessWidget {
   }
 }
 
+class RoomLoadingState extends StatelessWidget {
+  const RoomLoadingState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: glassDecoration(radius: 28, opacity: 0.070),
+      child: const CircularProgressIndicator(color: AppColors.champagne),
+    );
+  }
+}
+
+class RoomErrorState extends StatelessWidget {
+  final String errorText;
+
+  const RoomErrorState({super.key, required this.errorText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: glassDecoration(radius: 28, opacity: 0.070),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.champagne,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Oda bilgileri şu anda alınamadı. Lütfen daha sonra tekrar kontrol edin.\n$errorText',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.62),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 12.8,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class EmptyRoomState extends StatelessWidget {
+  const EmptyRoomState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: glassDecoration(radius: 28, opacity: 0.070),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.hotel_rounded,
+            color: AppColors.champagne,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Henüz oda bilginiz yayınlanmadı. Organizasyon ekibi bilgileri yayınladığında burada görünecektir.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.62),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class RoomHeroCard extends StatelessWidget {
-  const RoomHeroCard({super.key});
+  final RoomInfo room;
+
+  const RoomHeroCard({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -202,8 +335,8 @@ class RoomHeroCard extends StatelessWidget {
               SizedBox(
                 height: 78,
                 child: ClientLogoBadge(
-                  logoPath: demoGuest.clientLogoPath,
-                  clientName: demoGuest.clientName,
+                  logoPath: room.clientLogoPath,
+                  clientName: room.clientName,
                 ),
               ),
               const Spacer(),
@@ -223,7 +356,7 @@ class RoomHeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                demoGuest.hotelName,
+                room.hotelName,
                 style: const TextStyle(
                   color: Colors.white,
                   decoration: TextDecoration.none,
@@ -235,7 +368,7 @@ class RoomHeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 9),
               Text(
-                'Oda ${demoGuest.roomNumber} · ${demoGuest.roomType}',
+                'Oda ${room.roomNumber} · ${room.roomType}',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.66),
                   decoration: TextDecoration.none,
@@ -253,7 +386,9 @@ class RoomHeroCard extends StatelessWidget {
 }
 
 class RoomStatusCard extends StatelessWidget {
-  const RoomStatusCard({super.key});
+  final RoomInfo room;
+
+  const RoomStatusCard({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -288,9 +423,9 @@ class RoomStatusCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Odanız Hazır',
-                  style: TextStyle(
+                Text(
+                  room.statusTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     decoration: TextDecoration.none,
                     fontSize: 17,
@@ -299,7 +434,7 @@ class RoomStatusCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  demoAccommodationInfo.checkInNote,
+                  room.checkInNote,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.56),
                     decoration: TextDecoration.none,
@@ -318,7 +453,9 @@ class RoomStatusCard extends StatelessWidget {
 }
 
 class RoomDetailsCard extends StatelessWidget {
-  const RoomDetailsCard({super.key});
+  final RoomInfo room;
+
+  const RoomDetailsCard({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -329,35 +466,35 @@ class RoomDetailsCard extends StatelessWidget {
           RoomDetailRow(
             icon: Icons.meeting_room_rounded,
             title: 'Oda Numarası',
-            value: demoGuest.roomNumber,
+            value: room.roomNumber,
             accent: const Color(0xFF7EA7D8),
           ),
           const RoomDivider(),
           RoomDetailRow(
             icon: Icons.king_bed_rounded,
             title: 'Oda Tipi',
-            value: demoGuest.roomType,
+            value: room.roomType,
             accent: const Color(0xFF9B8AD8),
           ),
           const RoomDivider(),
           RoomDetailRow(
             icon: Icons.login_rounded,
             title: 'Giriş',
-            value: demoGuest.checkIn,
+            value: room.checkIn,
             accent: const Color(0xFFD6B16A),
           ),
           const RoomDivider(),
           RoomDetailRow(
             icon: Icons.logout_rounded,
             title: 'Çıkış',
-            value: demoGuest.checkOut,
+            value: room.checkOut,
             accent: const Color(0xFF72C7C2),
           ),
           const RoomDivider(),
           RoomDetailRow(
             icon: Icons.people_alt_rounded,
             title: 'Oda Arkadaşı',
-            value: demoGuest.roommateName,
+            value: room.roommateName,
             accent: const Color(0xFFAAB4C3),
           ),
         ],
@@ -412,7 +549,7 @@ class RoomDetailRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  value,
+                  value.isEmpty ? '-' : value,
                   style: const TextStyle(
                     color: Colors.white,
                     decoration: TextDecoration.none,
@@ -444,7 +581,9 @@ class RoomDivider extends StatelessWidget {
 }
 
 class StayNotesCard extends StatelessWidget {
-  const StayNotesCard({super.key});
+  final RoomInfo room;
+
+  const StayNotesCard({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -456,30 +595,28 @@ class StayNotesCard extends StatelessWidget {
           StayNoteRow(
             icon: Icons.restaurant_rounded,
             title: 'Kahvaltı',
-            subtitle:
-                '${demoAccommodationInfo.breakfastTime} · ${demoAccommodationInfo.breakfastLocation}',
+            subtitle: '${room.breakfastTime} · ${room.breakfastLocation}',
             accent: const Color(0xFFD6B16A),
           ),
           const SizedBox(height: 13),
           StayNoteRow(
             icon: Icons.wifi_rounded,
             title: 'Wi-Fi',
-            subtitle:
-                'Ağ: ${demoAccommodationInfo.wifiName} · �?ifre: ${demoAccommodationInfo.wifiPassword}',
+            subtitle: 'Ağ: ${room.wifiName} · Şifre: ${room.wifiPassword}',
             accent: const Color(0xFF7EA7D8),
           ),
           const SizedBox(height: 13),
           StayNoteRow(
             icon: Icons.luggage_rounded,
             title: 'Bagaj',
-            subtitle: demoAccommodationInfo.luggageNote,
+            subtitle: room.luggageNote,
             accent: const Color(0xFF72C7C2),
           ),
           const SizedBox(height: 13),
           StayNoteRow(
             icon: Icons.logout_rounded,
             title: 'Check-out',
-            subtitle: demoAccommodationInfo.checkOutNote,
+            subtitle: room.checkOutNote,
             accent: const Color(0xFFAAB4C3),
           ),
         ],
@@ -533,7 +670,7 @@ class StayNoteRow extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                subtitle,
+                subtitle.isEmpty ? '-' : subtitle,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.56),
                   decoration: TextDecoration.none,
@@ -546,6 +683,68 @@ class StayNoteRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class RoomInfo {
+  final String hotelName;
+  final String roomNumber;
+  final String roomType;
+  final String checkIn;
+  final String checkOut;
+  final String roommateName;
+  final String receptionPhone;
+  final String checkInNote;
+  final String checkOutNote;
+  final String breakfastTime;
+  final String breakfastLocation;
+  final String wifiName;
+  final String wifiPassword;
+  final String luggageNote;
+  final String statusTitle;
+  final String clientName;
+  final String clientLogoPath;
+
+  const RoomInfo({
+    required this.hotelName,
+    required this.roomNumber,
+    required this.roomType,
+    required this.checkIn,
+    required this.checkOut,
+    required this.roommateName,
+    required this.receptionPhone,
+    required this.checkInNote,
+    required this.checkOutNote,
+    required this.breakfastTime,
+    required this.breakfastLocation,
+    required this.wifiName,
+    required this.wifiPassword,
+    required this.luggageNote,
+    required this.statusTitle,
+    required this.clientName,
+    required this.clientLogoPath,
+  });
+
+  factory RoomInfo.fromFirestore(Map<String, dynamic> data) {
+    return RoomInfo(
+      hotelName: (data['hotelName'] ?? '').toString(),
+      roomNumber: (data['roomNumber'] ?? '').toString(),
+      roomType: (data['roomType'] ?? '').toString(),
+      checkIn: (data['checkIn'] ?? '').toString(),
+      checkOut: (data['checkOut'] ?? '').toString(),
+      roommateName: (data['roommateName'] ?? '').toString(),
+      receptionPhone: (data['receptionPhone'] ?? '').toString(),
+      checkInNote: (data['checkInNote'] ?? '').toString(),
+      checkOutNote: (data['checkOutNote'] ?? '').toString(),
+      breakfastTime: (data['breakfastTime'] ?? '').toString(),
+      breakfastLocation: (data['breakfastLocation'] ?? '').toString(),
+      wifiName: (data['wifiName'] ?? '').toString(),
+      wifiPassword: (data['wifiPassword'] ?? '').toString(),
+      luggageNote: (data['luggageNote'] ?? '').toString(),
+      statusTitle: (data['statusTitle'] ?? 'Odanız Hazır').toString(),
+      clientName: (data['clientName'] ?? 'Alpha Events').toString(),
+      clientLogoPath: (data['clientLogoPath'] ?? '').toString(),
     );
   }
 }
