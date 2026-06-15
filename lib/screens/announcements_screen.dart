@@ -1,12 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/header_title.dart';
 
 class AnnouncementsScreen extends StatelessWidget {
   const AnnouncementsScreen({super.key});
+
+  static const String eventId = 'zurich_2026';
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAnnouncementsStream() {
+    return FirebaseFirestore.instance
+        .collection('event_announcements')
+        .where('eventId', isEqualTo: eventId)
+        .snapshots();
+  }
+
+  List<GuestAnnouncementItem> buildAnnouncements(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final items = snapshot.docs
+        .map((doc) => GuestAnnouncementItem.fromFirestore(doc.data()))
+        .where((item) => item.status == 'Yayında')
+        .toList();
+
+    items.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +63,134 @@ class AnnouncementsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ...List.generate(demoAnnouncements.length, (index) {
-              final item = demoAnnouncements[index];
+            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: getAnnouncementsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const AnnouncementLoadingState();
+                }
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: AnnouncementCard(item: item, index: index),
-              );
-            }),
+                if (snapshot.hasError) {
+                  return AnnouncementErrorState(
+                    errorText: snapshot.error.toString(),
+                  );
+                }
+
+                final announcements = snapshot.hasData
+                    ? buildAnnouncements(snapshot.data!)
+                    : <GuestAnnouncementItem>[];
+
+                if (announcements.isEmpty) {
+                  return const EmptyGuestAnnouncementsState();
+                }
+
+                return Column(
+                  children: List.generate(announcements.length, (index) {
+                    final item = announcements[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AnnouncementCard(item: item, index: index),
+                    );
+                  }),
+                );
+              },
+            ),
             const SizedBox(height: 10),
             const AnnouncementInfoCard(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class AnnouncementLoadingState extends StatelessWidget {
+  const AnnouncementLoadingState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 118,
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: const CircularProgressIndicator(
+        color: AppColors.champagne,
+      ),
+    );
+  }
+}
+
+class AnnouncementErrorState extends StatelessWidget {
+  final String errorText;
+
+  const AnnouncementErrorState({super.key, required this.errorText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: glassDecoration(radius: 24, opacity: 0.070),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.champagne,
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Duyurular şu anda alınamadı. Lütfen daha sonra tekrar kontrol edin.\n$errorText',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.62),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class EmptyGuestAnnouncementsState extends StatelessWidget {
+  const EmptyGuestAnnouncementsState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: glassDecoration(radius: 24, opacity: 0.060),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.champagne,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Şu anda yayında duyuru bulunmuyor. Etkinlik güncellemeleri yayınlandığında burada görünecektir.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.60),
+                decoration: TextDecoration.none,
+                height: 1.35,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -176,18 +314,42 @@ class AnnouncementHeroCard extends StatelessWidget {
 }
 
 class AnnouncementCard extends StatelessWidget {
-  final AnnouncementItem item;
+  final GuestAnnouncementItem item;
   final int index;
 
   const AnnouncementCard({super.key, required this.item, required this.index});
 
   Color getAccentColor() {
+    if (item.isUrgent || item.priority == 'Acil') return AppColors.champagne;
+    if (item.type == 'Transfer') return const Color(0xFF72C7C2);
+    if (item.type == 'VIP') return const Color(0xFFD7B56D);
+    if (item.type == 'Program') return const Color(0xFF7EA7D8);
     if (index == 0) return AppColors.champagne;
     if (index == 1) return const Color(0xFF72C7C2);
     return const Color(0xFF7EA7D8);
   }
 
   IconData getIcon() {
+    if (item.isUrgent || item.priority == 'Acil') {
+      return Icons.warning_amber_rounded;
+    }
+
+    if (item.type == 'Transfer') {
+      return Icons.directions_bus_filled_rounded;
+    }
+
+    if (item.type == 'Program') {
+      return Icons.calendar_month_rounded;
+    }
+
+    if (item.type == 'VIP') {
+      return Icons.star_rounded;
+    }
+
+    if (item.type == 'Hatırlatma') {
+      return Icons.badge_rounded;
+    }
+
     final title = item.title.toLowerCase();
 
     if (title.contains('transfer')) {
@@ -208,7 +370,7 @@ class AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color accent = getAccentColor();
-    final bool isImportant = index == 0;
+    final bool isImportant = index == 0 || item.isUrgent || item.priority == 'Acil';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -266,7 +428,7 @@ class AnnouncementCard extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            'ÖNEMLİ',
+                            item.priority == 'Acil' ? 'ACİL' : 'ÖNEMLİ',
                             style: TextStyle(
                               color: accent,
                               decoration: TextDecoration.none,
@@ -279,13 +441,17 @@ class AnnouncementCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                     ],
-                    Text(
-                      item.date,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.46),
-                        decoration: TextDecoration.none,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        '${item.date} · ${item.time}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.46),
+                          decoration: TextDecoration.none,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -303,7 +469,7 @@ class AnnouncementCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 7),
                 Text(
-                  item.message,
+                  item.description,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.58),
                     decoration: TextDecoration.none,
@@ -312,6 +478,18 @@ class AnnouncementCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (item.target.isNotEmpty) ...[
+                  const SizedBox(height: 9),
+                  Text(
+                    item.target,
+                    style: TextStyle(
+                      color: accent.withOpacity(0.82),
+                      decoration: TextDecoration.none,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -353,6 +531,48 @@ class AnnouncementInfoCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class GuestAnnouncementItem {
+  final String title;
+  final String description;
+  final String date;
+  final String time;
+  final String type;
+  final String status;
+  final String target;
+  final String priority;
+  final bool isUrgent;
+  final int sortOrder;
+
+  const GuestAnnouncementItem({
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.time,
+    required this.type,
+    required this.status,
+    required this.target,
+    required this.priority,
+    required this.isUrgent,
+    required this.sortOrder,
+  });
+
+  factory GuestAnnouncementItem.fromFirestore(Map<String, dynamic> data) {
+    return GuestAnnouncementItem(
+      title: (data['title'] ?? '').toString(),
+      description: (data['description'] ?? '').toString(),
+      date: (data['date'] ?? '').toString(),
+      time: (data['time'] ?? '').toString(),
+      type: (data['type'] ?? 'Bilgi').toString(),
+      status: (data['status'] ?? 'Taslak').toString(),
+      target: (data['target'] ?? '').toString(),
+      priority: (data['priority'] ?? 'Bilgi').toString(),
+      isUrgent: data['isUrgent'] == true ||
+          (data['priority'] ?? '').toString() == 'Acil',
+      sortOrder: int.tryParse((data['sortOrder'] ?? '0').toString()) ?? 0,
     );
   }
 }
