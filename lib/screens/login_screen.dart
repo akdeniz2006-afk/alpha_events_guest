@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
@@ -15,48 +17,133 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  static const String eventId = 'zurich_2026';
 
-  bool obscurePassword = true;
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController codeController = TextEditingController();
+
+  bool obscureCode = true;
+  bool isLoading = false;
   String? errorText;
-
-  static const String demoEmail = 'ayse.demir@zurich.com';
-  static const String demoPassword = 'ALP304';
 
   @override
   void initState() {
     super.initState();
 
-    emailController.text = demoEmail;
-    passwordController.text = demoPassword;
+    phoneController.text = '+90 532 123 45 67';
+    codeController.text = '';
   }
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    phoneController.dispose();
+    codeController.dispose();
     super.dispose();
   }
 
-  void login() {
-    final email = emailController.text.trim().toLowerCase();
-    final password = passwordController.text.trim();
+  String onlyDigits(String value) {
+    return value.replaceAll(RegExp(r'[^0-9]'), '');
+  }
 
-    if (email == demoEmail && password == demoPassword) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+  String makeWhatsappNumber(String value) {
+    var digits = onlyDigits(value);
+
+    if (digits.startsWith('00')) {
+      digits = digits.substring(2);
+    }
+
+    if (digits.startsWith('0') && digits.length == 11) {
+      digits = '90${digits.substring(1)}';
+    }
+
+    if (digits.length == 10 && digits.startsWith('5')) {
+      digits = '90$digits';
+    }
+
+    return digits;
+  }
+
+  Future<void> login() async {
+    final phone = phoneController.text.trim();
+    final enteredCode = codeController.text.trim();
+    final whatsappNumber = makeWhatsappNumber(phone);
+
+    if (phone.isEmpty || enteredCode.isEmpty || whatsappNumber.isEmpty) {
+      setState(() {
+        errorText = 'Telefon numarası ve katılımcı kodu zorunludur.';
+      });
       return;
     }
 
     setState(() {
-      errorText = 'E-mail veya password hatalı. Lütfen tekrar kontrol edin.';
+      isLoading = true;
+      errorText = null;
     });
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('event_guests')
+          .where('whatsappNumber', isEqualTo: whatsappNumber)
+          .limit(10)
+          .get();
+
+      QueryDocumentSnapshot<Map<String, dynamic>>? matchedDoc;
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        final eventMatches = (data['eventId'] ?? '').toString() == eventId;
+        final codeMatches =
+            (data['code'] ?? '').toString().trim().toLowerCase() ==
+                enteredCode.toLowerCase();
+        final active = data['isActive'] != false;
+
+        if (eventMatches && codeMatches && active) {
+          matchedDoc = doc;
+          break;
+        }
+      }
+
+      if (matchedDoc == null) {
+        setState(() {
+          errorText = 'Telefon numarası veya katılımcı kodu hatalı.';
+          isLoading = false;
+        });
+        return;
+      }
+
+      final data = matchedDoc.data();
+      final guestId = (data['guestId'] ?? matchedDoc.id).toString();
+      final guestName = (data['guestName'] ?? data['name'] ?? '').toString();
+      final guestCode = (data['code'] ?? '').toString();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('guestId', guestId);
+      await prefs.setString('guestName', guestName);
+      await prefs.setString('guestCode', guestCode);
+      await prefs.setString('whatsappNumber', whatsappNumber);
+      await prefs.setString('eventId', eventId);
+      await prefs.setBool('isLoggedIn', true);
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        errorText = 'Giriş yapılamadı. Lütfen tekrar deneyin.';
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final previewWhatsapp = makeWhatsappNumber(phoneController.text);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: AppPage(
@@ -66,15 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-
               const LoginBrandHeader(),
-
               const SizedBox(height: 26),
-
               const LoginHeroCard(),
-
               const SizedBox(height: 28),
-
               const Text(
                 'Giriş',
                 style: TextStyle(
@@ -85,11 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   letterSpacing: -0.6,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               Text(
-                'Etkinlik bilgilerinize ulaşmak için size tanımlanan e-mail ve password ile giriş yapın.',
+                'Etkinlik bilgilerinize ulaşmak için size tanımlanan telefon numarası ve katılımcı kodu ile giriş yapın.',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.58),
                   decoration: TextDecoration.none,
@@ -98,35 +178,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 18),
-
               LoginTextField(
-                controller: emailController,
-                label: 'E-mail',
-                hint: 'ornek@firma.com',
-                icon: Icons.mail_rounded,
-                keyboardType: TextInputType.emailAddress,
+                controller: phoneController,
+                label: 'Telefon numarası',
+                hint: '+90 532 123 45 67',
+                icon: Icons.phone_rounded,
+                keyboardType: TextInputType.phone,
                 errorText: errorText,
+                onChanged: (_) {
+                  setState(() {});
+                },
                 onSubmitted: (_) => login(),
               ),
-
               const SizedBox(height: 13),
-
               LoginTextField(
-                controller: passwordController,
-                label: 'Password',
-                hint: 'Password',
+                controller: codeController,
+                label: 'Katılımcı kodu',
+                hint: 'ALP001',
                 icon: Icons.lock_rounded,
-                obscureText: obscurePassword,
+                obscureText: obscureCode,
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
-                      obscurePassword = !obscurePassword;
+                      obscureCode = !obscureCode;
                     });
                   },
                   icon: Icon(
-                    obscurePassword
+                    obscureCode
                         ? Icons.visibility_rounded
                         : Icons.visibility_off_rounded,
                     color: Colors.white.withOpacity(0.54),
@@ -135,11 +214,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onSubmitted: (_) => login(),
               ),
-
               const SizedBox(height: 16),
-
               PressableScale(
-                onTap: login,
+                onTap: () {
+                  if (!isLoading) login();
+                },
                 child: Container(
                   height: 58,
                   width: double.infinity,
@@ -159,23 +238,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Giriş Yap',
-                      style: TextStyle(
-                        color: Colors.white,
-                        decoration: TextDecoration.none,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
+                  child: Center(
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'Giriş Yap',
+                            style: TextStyle(
+                              color: Colors.white,
+                              decoration: TextDecoration.none,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
                   ),
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -184,14 +270,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(
-                      Icons.info_outline_rounded,
+                      Icons.verified_user_rounded,
                       size: 21,
                       color: AppColors.champagne,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Demo giriş bilgileri: $demoEmail / $demoPassword. Gerçek sistemde bu bilgiler Firebase üzerinden kişiye özel çalışacak.',
+                        previewWhatsapp.isEmpty
+                            ? 'Giriş güvenliği için telefon numarası ve katılımcı kodu birlikte kontrol edilir.'
+                            : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır.',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.58),
                           decoration: TextDecoration.none,
@@ -204,7 +292,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
             ],
           ),
@@ -411,6 +498,7 @@ class LoginTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final String? errorText;
   final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
 
   const LoginTextField({
     super.key,
@@ -423,6 +511,7 @@ class LoginTextField extends StatelessWidget {
     this.suffixIcon,
     this.errorText,
     this.onSubmitted,
+    this.onChanged,
   });
 
   @override
@@ -432,6 +521,7 @@ class LoginTextField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText,
       onSubmitted: onSubmitted,
+      onChanged: onChanged,
       style: const TextStyle(
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
