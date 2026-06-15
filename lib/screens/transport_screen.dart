@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
@@ -11,10 +12,16 @@ class TransportScreen extends StatelessWidget {
 
   static const String eventId = 'zurich_2026';
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> getTransportStream() {
+  Future<String?> getSavedGuestId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('guestId');
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getTransportStream(String guestId) {
     return FirebaseFirestore.instance
         .collection('event_transports')
         .where('eventId', isEqualTo: eventId)
+        .where('guestId', isEqualTo: guestId)
         .snapshots();
   }
 
@@ -49,38 +56,58 @@ class TransportScreen extends StatelessWidget {
               subtitle: 'Transfer ve shuttle bilgileriniz',
             ),
             const SizedBox(height: 18),
-            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: getTransportStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            FutureBuilder<String?>(
+              future: getSavedGuestId(),
+              builder: (context, guestSnapshot) {
+                if (guestSnapshot.connectionState == ConnectionState.waiting) {
                   return const TransportLoadingState();
                 }
 
-                if (snapshot.hasError) {
-                  return TransportErrorState(errorText: snapshot.error.toString());
+                final savedGuestId = guestSnapshot.data;
+
+                if (savedGuestId == null || savedGuestId.isEmpty) {
+                  return const EmptyTransportState(
+                    subtitle:
+                        'Ulaşım bilgilerinizi görmek için lütfen telefon numaranız ve katılımcı kodunuz ile tekrar giriş yapın.',
+                  );
                 }
 
-                final items = snapshot.hasData
-                    ? buildItems(snapshot.data!)
-                    : <GuestTransportItem>[];
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: getTransportStream(savedGuestId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const TransportLoadingState();
+                    }
 
-                if (items.isEmpty) {
-                  return const EmptyTransportState();
-                }
-
-                return Column(
-                  children: [
-                    TransportHeroCard(item: items.first),
-                    const SizedBox(height: 18),
-                    const SectionLabel(title: 'Transfer Bilgileri'),
-                    const SizedBox(height: 12),
-                    ...items.map((item) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: TransportInfoCard(item: item),
+                    if (snapshot.hasError) {
+                      return TransportErrorState(
+                        errorText: snapshot.error.toString(),
                       );
-                    }),
-                  ],
+                    }
+
+                    final items = snapshot.hasData
+                        ? buildItems(snapshot.data!)
+                        : <GuestTransportItem>[];
+
+                    if (items.isEmpty) {
+                      return const EmptyTransportState();
+                    }
+
+                    return Column(
+                      children: [
+                        TransportHeroCard(item: items.first),
+                        const SizedBox(height: 18),
+                        const SectionLabel(title: 'Transfer Bilgileri'),
+                        const SizedBox(height: 12),
+                        ...items.map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: TransportInfoCard(item: item),
+                          );
+                        }),
+                      ],
+                    );
+                  },
                 );
               },
             ),
@@ -121,14 +148,20 @@ class TransportErrorState extends StatelessWidget {
 }
 
 class EmptyTransportState extends StatelessWidget {
-  const EmptyTransportState({super.key});
+  final String subtitle;
+
+  const EmptyTransportState({
+    super.key,
+    this.subtitle =
+        'Organizasyon ekibi bilgileri yayınladığında burada görünecektir.',
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const TransportNoticeCard(
+    return TransportNoticeCard(
       icon: Icons.directions_bus_rounded,
       title: 'Henüz ulaşım bilginiz yayınlanmadı.',
-      subtitle: 'Organizasyon ekibi bilgileri yayınladığında burada görünecektir.',
+      subtitle: subtitle,
       accent: AppColors.champagne,
     );
   }
@@ -513,6 +546,7 @@ class TransportRow extends StatelessWidget {
 
 class GuestTransportItem {
   final String id;
+  final String guestId;
   final String title;
   final String type;
   final String category;
@@ -532,6 +566,7 @@ class GuestTransportItem {
 
   const GuestTransportItem({
     required this.id,
+    required this.guestId,
     required this.title,
     required this.type,
     required this.category,
@@ -561,6 +596,7 @@ class GuestTransportItem {
 
     return GuestTransportItem(
       id: id,
+      guestId: (data['guestId'] ?? '').toString(),
       title: (data['title'] ?? '').toString(),
       type: (data['type'] ?? '').toString(),
       category: (data['category'] ?? '').toString(),
