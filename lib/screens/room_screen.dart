@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,13 +15,11 @@ class RoomScreen extends StatelessWidget {
   static const String guestId = 'demo_guest';
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getRoomStream() {
-    // GEÇİCİ TEST:
-    // Şimdilik filtre kullanmadan event_rooms collection içindeki ilk odayı okuyoruz.
-    // Bu çalışırsa sonra eventId / guestId filtresini tekrar güvenli şekilde ekleyeceğiz.
     return FirebaseFirestore.instance
-        .collection('event_rooms')
-        .limit(1)
-        .snapshots();
+    .collection('event_rooms')
+    .where('eventId', isEqualTo: eventId)
+    .limit(1)
+    .snapshots();
   }
 
   Future<void> callHotel(BuildContext context, RoomInfo room) async {
