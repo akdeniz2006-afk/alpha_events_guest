@@ -13,6 +13,7 @@ import 'announcements_screen.dart';
 import 'help_screen.dart';
 import 'hotel_gallery_screen.dart';
 import 'program_screen.dart';
+import 'transport_screen.dart';
 import 'videos_screen.dart';
 import 'evaluation_screen.dart';
 
@@ -58,6 +59,16 @@ class DashboardScreen extends StatelessWidget {
                     icon: Icons.calendar_month_rounded,
                     accent: const Color(0xFF7EA7D8),
                     onTap: () => openPage(context, const ProgramScreen()),
+                  ),
+                ),
+                AnimatedEntrance(
+                  delay: 230,
+                  child: CompactDashboardButton(
+                    title: 'Ulaşım',
+                    subtitle: 'Transfer bilgileri',
+                    icon: Icons.directions_bus_rounded,
+                    accent: const Color(0xFFD6B16A),
+                    onTap: () => openPage(context, const TransportScreen()),
                   ),
                 ),
                 AnimatedEntrance(
