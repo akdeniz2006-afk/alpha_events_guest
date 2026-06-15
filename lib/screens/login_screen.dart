@@ -24,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool obscureCode = true;
   bool isLoading = false;
+  bool rememberMe = true;
+  bool checkingSavedLogin = true;
   String? errorText;
 
   @override
@@ -32,6 +34,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
     phoneController.text = '+90 532 123 45 67';
     codeController.text = '';
+
+    checkSavedLogin();
+  }
+
+  Future<void> checkSavedLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') == true;
+    final savedGuestId = prefs.getString('guestId') ?? '';
+
+    if (!mounted) return;
+
+    if (isLoggedIn && savedGuestId.isNotEmpty) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+      return;
+    }
+
+    setState(() {
+      checkingSavedLogin = false;
+    });
   }
 
   @override
@@ -123,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setString('guestCode', guestCode);
       await prefs.setString('whatsappNumber', whatsappNumber);
       await prefs.setString('eventId', eventId);
-      await prefs.setBool('isLoggedIn', true);
+      await prefs.setBool('isLoggedIn', rememberMe);
 
       if (!mounted) return;
 
@@ -143,6 +166,31 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final previewWhatsapp = makeWhatsappNumber(phoneController.text);
+
+    if (checkingSavedLogin) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: AppPage(
+          child: Center(
+            child: Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.075),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: Colors.white.withOpacity(0.10)),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.champagne,
+                  strokeWidth: 2.6,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -214,6 +262,67 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onSubmitted: (_) => login(),
               ),
+              const SizedBox(height: 13),
+              PressableScale(
+                onTap: () {
+                  setState(() {
+                    rememberMe = !rememberMe;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: glassDecoration(radius: 20, opacity: 0.055),
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: rememberMe
+                              ? AppColors.champagne.withOpacity(0.24)
+                              : Colors.white.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: rememberMe
+                                ? AppColors.champagne
+                                : Colors.white.withOpacity(0.18),
+                          ),
+                        ),
+                        child: rememberMe
+                            ? const Icon(
+                                Icons.check_rounded,
+                                color: AppColors.champagne,
+                                size: 18,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Beni hatırla',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.78),
+                            decoration: TextDecoration.none,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        'Sonraki girişte kod isteme',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.42),
+                          decoration: TextDecoration.none,
+                          fontSize: 11.8,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 16),
               PressableScale(
                 onTap: () {
@@ -279,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         previewWhatsapp.isEmpty
                             ? 'Giriş güvenliği için telefon numarası ve katılımcı kodu birlikte kontrol edilir.'
-                            : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır.',
+                            : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır. Beni hatırla açıksa sonraki açılışta otomatik geçilir.',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.58),
                           decoration: TextDecoration.none,
