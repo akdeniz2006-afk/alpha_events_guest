@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
@@ -12,6 +13,7 @@ import 'activities_screen.dart';
 import 'announcements_screen.dart';
 import 'help_screen.dart';
 import 'hotel_gallery_screen.dart';
+import 'login_screen.dart';
 import 'program_screen.dart';
 import 'transport_screen.dart';
 import 'videos_screen.dart';
@@ -197,6 +199,131 @@ class _AnimatedEntranceState extends State<AnimatedEntrance> {
 class DashboardTopBar extends StatelessWidget {
   const DashboardTopBar({super.key});
 
+  Future<void> logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('guestId');
+    await prefs.remove('guestName');
+    await prefs.remove('guestCode');
+    await prefs.remove('whatsappNumber');
+    await prefs.remove('eventId');
+    await prefs.setBool('isLoggedIn', false);
+
+    if (!context.mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  void showLogoutDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: const Color(0xFF101827),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: AppColors.champagne.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.champagne.withOpacity(0.24),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.champagne,
+                    size: 29,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Çıkış yapılsın mı?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Çıkış yaptığınızda bir sonraki girişte telefon numarası ve katılımcı kodu tekrar istenir.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.58),
+                    decoration: TextDecoration.none,
+                    fontSize: 12.8,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.18),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Vazgeç',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          logout(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.champagne,
+                          foregroundColor: const Color(0xFF101827),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Çıkış Yap',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -261,8 +388,8 @@ class DashboardTopBar extends StatelessWidget {
             ],
           ),
         ),
-        AnimatedHoverLift(
-          borderRadius: 24,
+        PressableScale(
+          onTap: () => showLogoutDialog(context),
           child: Container(
             width: 44,
             height: 44,
@@ -272,7 +399,7 @@ class DashboardTopBar extends StatelessWidget {
               border: Border.all(color: Colors.white.withOpacity(0.12)),
             ),
             child: const Icon(
-              Icons.person_rounded,
+              Icons.logout_rounded,
               color: Colors.white,
               size: 22,
             ),
