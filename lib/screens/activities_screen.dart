@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
@@ -12,63 +14,115 @@ class ActivitiesScreen extends StatefulWidget {
 }
 
 class _ActivitiesScreenState extends State<ActivitiesScreen> {
-  final Map<int, bool?> answers = {};
+  static const String eventId = 'zurich_2026';
 
-  final List<ActivityItem> activities = const [
-    ActivityItem(
-      title: 'Boğaz Turu',
-      date: '14 Mayıs',
-      time: '18:00',
-      location: 'Kalkış: Kabataş İskelesi',
-      capacity: '250 kişi',
-      description:
-          'İstanbul’un en özel manzaralarından biri eşliğinde keyifli bir tekne turu planlanmaktadır. Tur sırasında misafirlerimiz Boğaz hattını görecek ve etkinlik ekibi tarafından belirlenen ikramlardan faydalanacaktır.',
-      accent: Color(0xFF72C7C2),
-      icon: Icons.directions_boat_filled_rounded,
-    ),
-    ActivityItem(
-      title: 'Gala Yemeği',
-      date: '14 Mayıs',
-      time: '20:30',
-      location: 'Swissôtel Ballroom',
-      capacity: '800 kişi',
-      description:
-          'Etkinliğimizin kapanış gecesinde tüm misafirlerimizi özel gala yemeğinde ağırlamaktan memnuniyet duyarız. Gece boyunca yemek servisi, sahne programı ve özel networking alanları yer alacaktır.',
-      accent: Color(0xFFD6B16A),
-      icon: Icons.dinner_dining_rounded,
-    ),
-    ActivityItem(
-      title: 'Liderlik Workshop’u',
-      date: '15 Mayıs',
-      time: '10:00',
-      location: 'Toplantı Salonu A',
-      capacity: '120 kişi',
-      description:
-          'Katılımcılarımız için hazırlanan bu özel oturumda ekip yönetimi, liderlik iletişimi ve karar alma süreçleri üzerine interaktif bir çalışma gerçekleştirilecektir.',
-      accent: Color(0xFF9B8AD8),
-      icon: Icons.groups_rounded,
-    ),
-    ActivityItem(
-      title: 'Şehir Deneyimi',
-      date: '15 Mayıs',
-      time: '15:30',
-      location: 'Otel ana girişinden hareket',
-      capacity: '180 kişi',
-      description:
-          'Misafirlerimiz için İstanbul’un simge noktalarını kapsayan kısa ve keyifli bir şehir deneyimi planlanmıştır. Program süresi boyunca Alpha Events ekibi katılımcılara eşlik edecektir.',
-      accent: Color(0xFF7EA7D8),
-      icon: Icons.location_city_rounded,
-    ),
-  ];
+  String guestId = '';
+  String guestName = '';
+  bool isLoadingGuest = true;
 
-  void setAnswer(int index, bool value) {
+  @override
+  void initState() {
+    super.initState();
+    loadGuest();
+  }
+
+  Future<void> loadGuest() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!mounted) return;
+
     setState(() {
-      answers[index] = value;
+      guestId = prefs.getString('guestId') ?? '';
+      guestName = prefs.getString('guestName') ?? '';
+      isLoadingGuest = false;
     });
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getActivitiesStream() {
+    return FirebaseFirestore.instance
+        .collection('event_activities')
+        .where('eventId', isEqualTo: eventId)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getResponsesStream() {
+    return FirebaseFirestore.instance
+        .collection('event_activity_responses')
+        .where('eventId', isEqualTo: eventId)
+        .where('guestId', isEqualTo: guestId)
+        .snapshots();
+  }
+
+  List<ActivityItem> buildActivities(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final items = snapshot.docs.map((doc) {
+      return ActivityItem.fromFirestore(id: doc.id, data: doc.data());
+    }).where((item) {
+      return item.guestAppVisible;
+    }).toList();
+
+    items.sort((a, b) {
+      final sortCompare = a.sortOrder.compareTo(b.sortOrder);
+      if (sortCompare != 0) return sortCompare;
+      return '${a.date} ${a.time}'.compareTo('${b.date} ${b.time}');
+    });
+
+    return items;
+  }
+
+  Map<String, bool> buildAnswers(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final result = <String, bool>{};
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final activityId = (data['activityId'] ?? '').toString();
+      final answer = data['answer'];
+
+      if (activityId.isNotEmpty && answer is bool) {
+        result[activityId] = answer;
+      }
+    }
+
+    return result;
+  }
+
+  Future<void> setAnswer(ActivityItem activity, bool value) async {
+    if (guestId.isEmpty) return;
+
+    final docId = '${activity.id}_$guestId';
+
+    await FirebaseFirestore.instance
+        .collection('event_activity_responses')
+        .doc(docId)
+        .set({
+      'eventId': eventId,
+      'activityId': activity.id,
+      'activityTitle': activity.title,
+      'guestId': guestId,
+      'guestName': guestName,
+      'answer': value,
+      'status': value ? 'Katılacak' : 'Katılmayacak',
+      'updatedAt': FieldValue.serverTimestamp(),
+      'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoadingGuest) {
+      return const AppPage(
+        child: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.champagne,
+            strokeWidth: 2.6,
+          ),
+        ),
+      );
+    }
+
     return AppPage(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 14, 18, 120),
@@ -90,22 +144,169 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ...List.generate(activities.length, (index) {
-              final activity = activities[index];
-              final answer = answers[index];
+            if (guestId.isEmpty)
+              const ActivitiesEmptyState(
+                icon: Icons.lock_outline_rounded,
+                title: 'Katılımcı bilgisi bulunamadı',
+                subtitle:
+                    'Aktivite yanıtlarını kaydetmek için lütfen tekrar giriş yapınız.',
+              )
+            else
+              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: getActivitiesStream(),
+                builder: (context, activitiesSnapshot) {
+                  if (activitiesSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const ActivitiesLoadingState();
+                  }
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: ActivityCard(
-                  activity: activity,
-                  answer: answer,
-                  onJoin: () => setAnswer(index, true),
-                  onDecline: () => setAnswer(index, false),
-                ),
-              );
-            }),
+                  if (activitiesSnapshot.hasError) {
+                    return ActivitiesErrorState(
+                      text:
+                          'Aktiviteler alınamadı:\n${activitiesSnapshot.error}',
+                    );
+                  }
+
+                  final activities = activitiesSnapshot.hasData
+                      ? buildActivities(activitiesSnapshot.data!)
+                      : <ActivityItem>[];
+
+                  if (activities.isEmpty) {
+                    return const ActivitiesEmptyState(
+                      icon: Icons.event_busy_rounded,
+                      title: 'Aktivite bulunmuyor',
+                      subtitle:
+                          'Organizasyon ekibi aktivite bilgilerini yayınladığında burada görünecek.',
+                    );
+                  }
+
+                  return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: getResponsesStream(),
+                    builder: (context, responsesSnapshot) {
+                      final answers = responsesSnapshot.hasData
+                          ? buildAnswers(responsesSnapshot.data!)
+                          : <String, bool>{};
+
+                      return Column(
+                        children: activities.map((activity) {
+                          final answer = answers[activity.id];
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: ActivityCard(
+                              activity: activity,
+                              answer: answer,
+                              onJoin: () => setAnswer(activity, true),
+                              onDecline: () => setAnswer(activity, false),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  );
+                },
+              ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ActivitiesLoadingState extends StatelessWidget {
+  const ActivitiesLoadingState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 150,
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(
+        color: AppColors.champagne,
+        strokeWidth: 2.6,
+      ),
+    );
+  }
+}
+
+class ActivitiesErrorState extends StatelessWidget {
+  final String text;
+
+  const ActivitiesErrorState({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE08A8A).withOpacity(0.10),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE08A8A).withOpacity(0.22)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.78),
+          decoration: TextDecoration.none,
+          fontSize: 13,
+          height: 1.4,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class ActivitiesEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const ActivitiesEmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.075),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withOpacity(0.10)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.champagne, size: 36),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.58),
+              decoration: TextDecoration.none,
+              fontSize: 12.8,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -550,6 +751,7 @@ class ChoiceButton extends StatelessWidget {
 }
 
 class ActivityItem {
+  final String id;
   final String title;
   final String date;
   final String time;
@@ -558,8 +760,11 @@ class ActivityItem {
   final String description;
   final Color accent;
   final IconData icon;
+  final bool guestAppVisible;
+  final int sortOrder;
 
   const ActivityItem({
+    required this.id,
     required this.title,
     required this.date,
     required this.time,
@@ -568,5 +773,65 @@ class ActivityItem {
     required this.description,
     required this.accent,
     required this.icon,
+    required this.guestAppVisible,
+    required this.sortOrder,
   });
+
+  factory ActivityItem.fromFirestore({
+    required String id,
+    required Map<String, dynamic> data,
+  }) {
+    int parseInt(dynamic value) {
+      if (value is int) return value;
+      return int.tryParse((value ?? '0').toString()) ?? 0;
+    }
+
+    return ActivityItem(
+      id: id,
+      title: (data['title'] ?? '').toString(),
+      date: (data['date'] ?? '').toString(),
+      time: (data['time'] ?? '').toString(),
+      location: (data['location'] ?? '').toString(),
+      capacity: (data['capacity'] ?? 'Belirlenmedi').toString(),
+      description: (data['description'] ?? '').toString(),
+      accent: activityAccent((data['category'] ?? '').toString()),
+      icon: activityIcon((data['category'] ?? '').toString()),
+      guestAppVisible: data['guestAppVisible'] != false,
+      sortOrder: parseInt(data['sortOrder']),
+    );
+  }
+}
+
+Color activityAccent(String category) {
+  switch (category) {
+    case 'Deniz':
+      return const Color(0xFF72C7C2);
+    case 'Gala':
+      return const Color(0xFFD6B16A);
+    case 'Workshop':
+      return const Color(0xFF9B8AD8);
+    case 'Şehir':
+      return const Color(0xFF7EA7D8);
+    case 'Networking':
+      return const Color(0xFF88D18A);
+    default:
+      return const Color(0xFFD6B16A);
+  }
+}
+
+IconData activityIcon(String category) {
+  switch (category) {
+    case 'Deniz':
+      return Icons.directions_boat_filled_rounded;
+    case 'Gala':
+      return Icons.dinner_dining_rounded;
+    case 'Workshop':
+      return Icons.groups_rounded;
+    case 'Şehir':
+      return Icons.location_city_rounded;
+    case 'Networking':
+      return Icons.handshake_rounded;
+    default:
+      return Icons.event_available_rounded;
+  }
 }
