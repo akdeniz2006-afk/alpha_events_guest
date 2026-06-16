@@ -17,21 +17,21 @@ class TransportScreen extends StatelessWidget {
     return prefs.getString('guestId');
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> getTransportStream(String guestId) {
+  Stream<QuerySnapshot<Map<String, dynamic>>> getTransportStream() {
     return FirebaseFirestore.instance
         .collection('event_transports')
         .where('eventId', isEqualTo: eventId)
-        .where('guestId', isEqualTo: guestId)
         .snapshots();
   }
 
   List<GuestTransportItem> buildItems(
     QuerySnapshot<Map<String, dynamic>> snapshot,
+    String savedGuestId,
   ) {
     final items = snapshot.docs.map((doc) {
       return GuestTransportItem.fromFirestore(id: doc.id, data: doc.data());
     }).where((item) {
-      return item.guestAppVisible;
+      return item.guestAppVisible && item.isForGuest(savedGuestId);
     }).toList();
 
     items.sort((a, b) {
@@ -51,9 +51,35 @@ class TransportScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HeaderTitle(
-              title: 'Ulaşım',
-              subtitle: 'Transfer ve shuttle bilgileriniz',
+            Row(
+              children: [
+                PressableScale(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.12),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: HeaderTitle(
+                    title: 'Ulaşım',
+                    subtitle: 'Transfer ve shuttle bilgileriniz',
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 18),
             FutureBuilder<String?>(
@@ -73,7 +99,7 @@ class TransportScreen extends StatelessWidget {
                 }
 
                 return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: getTransportStream(savedGuestId),
+                  stream: getTransportStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const TransportLoadingState();
@@ -86,7 +112,7 @@ class TransportScreen extends StatelessWidget {
                     }
 
                     final items = snapshot.hasData
-                        ? buildItems(snapshot.data!)
+                        ? buildItems(snapshot.data!, savedGuestId)
                         : <GuestTransportItem>[];
 
                     if (items.isEmpty) {
@@ -562,6 +588,7 @@ class GuestTransportItem {
   final String status;
   final String note;
   final bool guestAppVisible;
+  final List<String> guestIds;
   final int sortOrder;
 
   const GuestTransportItem({
@@ -582,6 +609,7 @@ class GuestTransportItem {
     required this.status,
     required this.note,
     required this.guestAppVisible,
+    required this.guestIds,
     required this.sortOrder,
   });
 
@@ -592,6 +620,15 @@ class GuestTransportItem {
     int parseInt(dynamic value) {
       if (value is int) return value;
       return int.tryParse((value ?? '0').toString()) ?? 0;
+    }
+
+    List<String> parseStringList(dynamic value) {
+      if (value is List) {
+        return value.map((item) => item.toString()).where((item) {
+          return item.trim().isNotEmpty;
+        }).toList();
+      }
+      return <String>[];
     }
 
     return GuestTransportItem(
@@ -612,7 +649,12 @@ class GuestTransportItem {
       status: (data['status'] ?? '').toString(),
       note: (data['note'] ?? '').toString(),
       guestAppVisible: data['guestAppVisible'] != false,
+      guestIds: parseStringList(data['guestIds']),
       sortOrder: parseInt(data['sortOrder']),
     );
+  }
+
+  bool isForGuest(String savedGuestId) {
+    return guestIds.contains(savedGuestId);
   }
 }
