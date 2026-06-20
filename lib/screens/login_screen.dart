@@ -8,6 +8,7 @@ import '../widgets/app_page.dart';
 import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
 import 'home_screen.dart';
+import 'operation_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController codeController = TextEditingController();
+  final TextEditingController staffEmailController = TextEditingController(
+    text: 'operasyon@alphaevents.com.tr',
+  );
+  final TextEditingController staffPasswordController = TextEditingController(
+    text: 'op123',
+  );
+
+  String loginMode = 'guest';
 
   bool obscureCode = true;
   bool isLoading = false;
@@ -42,8 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') == true;
     final savedGuestId = prefs.getString('guestId') ?? '';
+    final savedRole = prefs.getString('appRole') ?? 'guest';
 
     if (!mounted) return;
+
+    if (isLoggedIn && savedRole == 'operation_staff') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OperationDashboardScreen()),
+      );
+      return;
+    }
 
     if (isLoggedIn && savedGuestId.isNotEmpty) {
       Navigator.of(context).pushReplacement(
@@ -61,6 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     phoneController.dispose();
     codeController.dispose();
+    staffEmailController.dispose();
+    staffPasswordController.dispose();
     super.dispose();
   }
 
@@ -84,6 +103,54 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return digits;
+  }
+
+  Future<void> operationLogin() async {
+    final email = staffEmailController.text.trim().toLowerCase();
+    final password = staffPasswordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        errorText = 'Operasyon e-mail ve şifre zorunludur.';
+      });
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      errorText = null;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 250));
+
+    if (email != 'operasyon@alphaevents.com.tr' || password != 'op123') {
+      if (!mounted) return;
+
+      setState(() {
+        errorText = 'Operasyon e-mail veya şifre hatalı.';
+        isLoading = false;
+      });
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('appRole', 'operation_staff');
+    await prefs.setString('staffEmail', email);
+    await prefs.setString('staffName', 'Operasyon Ekibi');
+    await prefs.setString('eventId', eventId);
+    await prefs.setBool('isLoggedIn', rememberMe);
+
+    // Operasyon modu misafir bilgileriyle karışmasın.
+    await prefs.remove('guestId');
+    await prefs.remove('guestName');
+    await prefs.remove('guestCode');
+    await prefs.remove('whatsappNumber');
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const OperationDashboardScreen()),
+    );
   }
 
   Future<void> login() async {
@@ -141,6 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final guestCode = (data['code'] ?? '').toString();
 
       final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('appRole', 'guest');
       await prefs.setString('guestId', guestId);
       await prefs.setString('guestName', guestName);
       await prefs.setString('guestCode', guestCode);
@@ -227,41 +295,86 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              LoginTextField(
-                controller: phoneController,
-                label: 'Telefon numarası',
-                hint: '+90 532 123 45 67',
-                icon: Icons.phone_rounded,
-                keyboardType: TextInputType.phone,
-                errorText: errorText,
-                onChanged: (_) {
-                  setState(() {});
+              LoginModeSelector(
+                selectedMode: loginMode,
+                onChanged: (mode) {
+                  setState(() {
+                    loginMode = mode;
+                    errorText = null;
+                  });
                 },
-                onSubmitted: (_) => login(),
               ),
-              const SizedBox(height: 13),
-              LoginTextField(
-                controller: codeController,
-                label: 'Katılımcı kodu',
-                hint: 'ALP001',
-                icon: Icons.lock_rounded,
-                obscureText: obscureCode,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      obscureCode = !obscureCode;
-                    });
+              const SizedBox(height: 16),
+              if (loginMode == 'guest') ...[
+                LoginTextField(
+                  controller: phoneController,
+                  label: 'Telefon numarası',
+                  hint: '+90 532 123 45 67',
+                  icon: Icons.phone_rounded,
+                  keyboardType: TextInputType.phone,
+                  errorText: errorText,
+                  onChanged: (_) {
+                    setState(() {});
                   },
-                  icon: Icon(
-                    obscureCode
-                        ? Icons.visibility_rounded
-                        : Icons.visibility_off_rounded,
-                    color: Colors.white.withOpacity(0.54),
-                    size: 21,
-                  ),
+                  onSubmitted: (_) => login(),
                 ),
-                onSubmitted: (_) => login(),
-              ),
+                const SizedBox(height: 13),
+                LoginTextField(
+                  controller: codeController,
+                  label: 'Katılımcı kodu',
+                  hint: 'ALP001',
+                  icon: Icons.lock_rounded,
+                  obscureText: obscureCode,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        obscureCode = !obscureCode;
+                      });
+                    },
+                    icon: Icon(
+                      obscureCode
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded,
+                      color: Colors.white.withOpacity(0.54),
+                      size: 21,
+                    ),
+                  ),
+                  onSubmitted: (_) => login(),
+                ),
+              ] else ...[
+                LoginTextField(
+                  controller: staffEmailController,
+                  label: 'Operasyon e-mail',
+                  hint: 'operasyon@alphaevents.com.tr',
+                  icon: Icons.mail_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                  errorText: errorText,
+                  onSubmitted: (_) => operationLogin(),
+                ),
+                const SizedBox(height: 13),
+                LoginTextField(
+                  controller: staffPasswordController,
+                  label: 'Operasyon şifresi',
+                  hint: 'op123',
+                  icon: Icons.lock_rounded,
+                  obscureText: obscureCode,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        obscureCode = !obscureCode;
+                      });
+                    },
+                    icon: Icon(
+                      obscureCode
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded,
+                      color: Colors.white.withOpacity(0.54),
+                      size: 21,
+                    ),
+                  ),
+                  onSubmitted: (_) => operationLogin(),
+                ),
+              ],
               const SizedBox(height: 13),
               PressableScale(
                 onTap: () {
@@ -326,7 +439,13 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               PressableScale(
                 onTap: () {
-                  if (!isLoading) login();
+                  if (isLoading) return;
+
+                  if (loginMode == 'guest') {
+                    login();
+                  } else {
+                    operationLogin();
+                  }
                 },
                 child: Container(
                   height: 58,
@@ -357,9 +476,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            'Giriş Yap',
-                            style: TextStyle(
+                        : Text(
+                            loginMode == 'guest'
+                                ? 'Misafir Girişi Yap'
+                                : 'Operasyon Girişi Yap',
+                            style: const TextStyle(
                               color: Colors.white,
                               decoration: TextDecoration.none,
                               fontSize: 16,
@@ -386,9 +507,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        previewWhatsapp.isEmpty
-                            ? 'Giriş güvenliği için telefon numarası ve katılımcı kodu birlikte kontrol edilir.'
-                            : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır. Beni hatırla açıksa sonraki açılışta otomatik geçilir.',
+                        loginMode == 'guest'
+                            ? (previewWhatsapp.isEmpty
+                                ? 'Giriş güvenliği için telefon numarası ve katılımcı kodu birlikte kontrol edilir.'
+                                : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır. Beni hatırla açıksa sonraki açılışta otomatik geçilir.')
+                            : 'Operasyon modunda katılımcı listesi, oda, transfer, check-in ve aktivite bilgileri görülür. Telefon, WhatsApp ve e-posta bilgileri gizlenir.',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.58),
                           decoration: TextDecoration.none,
@@ -592,6 +715,130 @@ class LoginHeroCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class LoginModeSelector extends StatelessWidget {
+  final String selectedMode;
+  final ValueChanged<String> onChanged;
+
+  const LoginModeSelector({
+    super.key,
+    required this.selectedMode,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(5),
+      decoration: glassDecoration(radius: 22, opacity: 0.055),
+      child: Row(
+        children: [
+          Expanded(
+            child: LoginModeButton(
+              title: 'Misafir',
+              subtitle: 'Telefon + kod',
+              icon: Icons.person_rounded,
+              selected: selectedMode == 'guest',
+              onTap: () => onChanged('guest'),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: LoginModeButton(
+              title: 'Operasyon',
+              subtitle: 'Ekip girişi',
+              icon: Icons.engineering_rounded,
+              selected: selectedMode == 'operation',
+              onTap: () => onChanged('operation'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LoginModeButton extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const LoginModeButton({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.champagne.withOpacity(0.18)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected
+                ? AppColors.champagne.withOpacity(0.62)
+                : Colors.white.withOpacity(0.08),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: selected
+                  ? AppColors.champagne
+                  : Colors.white.withOpacity(0.56),
+              size: 22,
+            ),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: selected ? AppColors.champagne : Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 13.2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.46),
+                      decoration: TextDecoration.none,
+                      fontSize: 11.3,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
