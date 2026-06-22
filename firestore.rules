@@ -13,16 +13,9 @@ service cloud.firestore {
     }
 
     /*
-      ADMIN USERS
-
-      Firestore yapısı:
-
-      admins
-        └── FIREBASE_AUTH_UID
-              name: "Hüseyin"
-              email: "admin@alphaevents.com.tr"
-              role: "admin"
-              active: true
+      ADMINS
+      Admin kullan?c?lar? sadece admin okuyabilir.
+      Admin olu?turma/silme rules ?zerinden kapal?.
     */
     match /admins/{adminId} {
       allow read: if isAdmin();
@@ -30,136 +23,150 @@ service cloud.firestore {
     }
 
     /*
-      PARTICIPANTS / GUESTS
+      GUEST APP LOGIN / PARTICIPANTS
 
-      Admin panelde katılımcılar ekranı:
-      collection('event_guests')
+      Guest App login ekran?, kullan?c? Firebase Auth ile giri? yapmadan
+      event_guests i?inde whatsappNumber + code ar?yor.
+      Bu nedenle read a??k olmal?.
+      Yazma sadece admin.
     */
     match /event_guests/{guestId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
       ROOMS
-
-      Admin panelde oda yönetimi:
-      collection('event_rooms')
+      Guest App oda bilgisini okuyabilir.
+      Yazma sadece admin.
     */
     match /event_rooms/{roomId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
-      TRANSPORT / ULAŞIM
-
-      Bazı dosyalarda tekil, bazı dosyalarda çoğul kullanım olabilir.
-      Bu yüzden ikisini de güvenli şekilde açıyoruz.
+      TRANSPORT
+      Guest App transfer bilgisini okuyabilir.
+      Yazma sadece admin.
     */
     match /event_transport/{transportId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     match /event_transports/{transportId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
       PROGRAM
-
-      Admin panel program ekranı:
-      collection('event_program')
+      Guest App program bilgisini okuyabilir.
+      Yazma sadece admin.
     */
     match /event_program/{programId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
-      ANNOUNCEMENTS / DUYURULAR
-
-      Admin panel duyurular ekranı:
-      collection('event_announcements')
+      ANNOUNCEMENTS
+      Guest App duyurular? okuyabilir.
+      Yazma sadece admin.
     */
     match /event_announcements/{announcementId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
-      ACTIVITIES / AKTİVİTELER
-
-      Admin panel aktiviteler ekranı:
-      collection('event_activities')
+      ACTIVITIES
+      Guest App aktiviteleri okuyabilir.
+      Yazma sadece admin.
     */
     match /event_activities/{activityId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /*
+      ACTIVITY RESPONSES
+      Kat?l?mc? aktivite cevab? olu?turabilir.
+      Admin okuyabilir/g?ncelleyebilir/silebilir.
+    */
+    match /event_activity_responses/{responseId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
     }
 
     /*
       PHOTOS
-
-      Admin panel fotoğraf ekranı:
-      collection('event_photos')
+      Guest App foto?raflar? okuyabilir.
+      Yazma sadece admin.
     */
     match /event_photos/{photoId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
       VIDEOS
-
-      Admin panel video ekranı:
-      collection('event_videos')
+      Guest App videolar? okuyabilir.
+      Yazma sadece admin.
     */
     match /event_videos/{videoId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
       FEEDBACK / EVALUATION
-
-      Admin panel değerlendirme / geri bildirim ekranı.
-      İki isim ihtimalini de açık bırakıyoruz.
+      Kat?l?mc? de?erlendirme g?nderebilir.
+      Admin okuyabilir/g?ncelleyebilir/silebilir.
     */
     match /event_feedback/{feedbackId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
     }
 
     match /event_evaluations/{evaluationId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
     }
 
     /*
       SETTINGS
-
-      Guest app ayarları:
-      collection('event_settings')
+      Guest App ayarlar? okuyabilir.
+      Yazma sadece admin.
     */
     match /event_settings/{settingId} {
-      allow read, create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     /*
       MANAGED MESSAGES
-
-      Admin panelden yönetilen mesajlar.
+      ?imdilik admin eri?imi.
     */
     match /managed_messages/{messageId} {
       allow read, create, update, delete: if isAdmin();
     }
 
     /*
-      WHATSAPP - İLERİ FAZ
-
-      WhatsApp entegrasyonu şimdilik admin erişimine açık.
+      WHATSAPP - ?LER? FAZ
+      ?imdilik admin eri?imi.
     */
     match /whatsapp_messages/{messageId} {
       allow read, create, update, delete: if isAdmin();
     }
 
     /*
-      LEGACY / ESKİ KOLEKSİYON İSİMLERİ
-
-      Daha önce bazı dosyalarda bu isimler kullanılmış olabilir.
-      Admin panelin eski ekranları kırılmasın diye admin erişimine açık.
+      LEGACY / ESK? KOLEKS?YON ?S?MLER?
+      Eski ekranlar k?r?lmas?n diye admin eri?imi korunuyor.
     */
     match /participants/{participantId} {
       allow read, create, update, delete: if isAdmin();
@@ -194,24 +201,19 @@ service cloud.firestore {
     }
 
     /*
-      GUEST APP OKUMA İHTİMALİ
-
-      Guest app giriş yapan kullanıcıya genel etkinlik içeriklerini okuyabilsin diye
-      public olmayan ama signed-in kullanıcıya açık okuma alanları.
-      Şimdilik yazma sadece admin.
+      GUEST PUBLIC
     */
     match /guest_public/{documentId} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow create, update, delete: if isAdmin();
     }
 
     /*
       DEFAULT DENY
-
-      Yukarıda açıkça izin vermediğimiz hiçbir koleksiyon okunamaz/yazılamaz.
     */
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
+
