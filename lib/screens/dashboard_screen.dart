@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +16,7 @@ import 'help_screen.dart';
 import 'hotel_gallery_screen.dart';
 import 'login_screen.dart';
 import 'program_screen.dart';
+import 'qr_code_screen.dart';
 import 'transport_screen.dart';
 import 'videos_screen.dart';
 import 'evaluation_screen.dart';
@@ -136,13 +137,18 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 26),
-            const AnimatedEntrance(
+            const SizedBox(height: 24),
+            AnimatedEntrance(
               delay: 460,
-              child: DashboardSectionTitle(title: 'Günün Notları'),
+              child: QrAccessCard(
+                onTap: () => openPage(context, const QrCodeScreen()),
+              ),
             ),
             const SizedBox(height: 12),
-            const AnimatedEntrance(delay: 500, child: DailyNotesCard()),
+            const AnimatedEntrance(
+              delay: 500,
+              child: DailyNotesCompactButton(),
+            ),
           ],
         ),
       ),
@@ -1092,6 +1098,207 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
   }
 }
 
+class QrAccessCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const QrAccessCard({super.key, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(17),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF101827),
+              Color(0xFF1B2A3E),
+              Color(0xFF263D5C),
+            ],
+          ),
+          border: Border.all(color: Colors.white10),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF22344E).withOpacity(0.28),
+              blurRadius: 28,
+              offset: Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.champagne.withOpacity(0.14),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.champagne.withOpacity(0.24),
+                ),
+              ),
+              child: const Icon(
+                Icons.qr_code_2_rounded,
+                color: AppColors.champagne,
+                size: 30,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'QR Kodum',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Etkinlik giri\u015Finde QR kodunuzu g\u00F6sterin.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.60),
+                      decoration: TextDecoration.none,
+                      fontSize: 12.8,
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white,
+                size: 25,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DailyNotesCompactButton extends StatelessWidget {
+  const DailyNotesCompactButton({super.key});
+
+  void showDailyNotes(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF111827),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 46,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'G\u00FCn\u00FCn Notlar\u0131',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const DailyNotesCard(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: () => showDailyNotes(context),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: glassDecoration(radius: 26, opacity: 0.070),
+        child: Row(
+          children: [
+            AnimatedGlowIconContainer(
+              accent: const Color(0xFF7EA7D8),
+              icon: Icons.notes_rounded,
+            ),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'G\u00FCn\u00FCn Notlar\u0131',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Hava durumu, transfer ve etkinlik notlar\u0131',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.56),
+                      decoration: TextDecoration.none,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white70,
+              size: 25,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 class DailyNotesCard extends StatelessWidget {
   const DailyNotesCard({super.key});
 
