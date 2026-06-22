@@ -20,6 +20,7 @@ import 'qr_code_screen.dart';
 import 'transport_screen.dart';
 import 'videos_screen.dart';
 import 'evaluation_screen.dart';
+import '../speakers_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -59,10 +60,20 @@ class DashboardScreen extends StatelessWidget {
                   delay: 220,
                   child: CompactDashboardButton(
                     title: 'Program',
-                    subtitle: 'Günün akışı',
+                    subtitle: 'Gün akışı',
                     icon: Icons.calendar_month_rounded,
                     accent: const Color(0xFF7EA7D8),
                     onTap: () => openPage(context, const ProgramScreen()),
+                  ),
+                ),
+                AnimatedEntrance(
+                  delay: 225,
+                  child: CompactDashboardButton(
+                    title: 'Konuşmacılar',
+                    subtitle: 'Soru sor',
+                    icon: Icons.record_voice_over_rounded,
+                    accent: const Color(0xFF9B8AFB),
+                    onTap: () => openPage(context, const SpeakersScreen()),
                   ),
                 ),
                 AnimatedEntrance(
