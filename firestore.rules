@@ -96,6 +96,11 @@ service cloud.firestore {
       Admin okuyabilir/g?ncelleyebilir/silebilir.
     */
 
+
+    match /event_gift_deliveries/{deliveryId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
     match /event_checkins/{checkinId} {
       allow read, create, update, delete: if isAdmin();
     }
