@@ -1,3 +1,6 @@
+import 'dart:html' as html;
+import 'dart:ui_web' as ui_web;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -357,18 +360,64 @@ class SpeakerPhoto extends StatelessWidget {
               color: Color(0xFF64748B),
               size: 44,
             )
-          : Image.network(
-              url,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.person_rounded,
-                color: Color(0xFF64748B),
-                size: 44,
-              ),
+          : HtmlNetworkImage(
+              key: ValueKey(url),
+              url: url,
             ),
     );
   }
 }
+
+
+class HtmlNetworkImage extends StatefulWidget {
+  final String url;
+
+  const HtmlNetworkImage({
+    super.key,
+    required this.url,
+  });
+
+  @override
+  State<HtmlNetworkImage> createState() => _HtmlNetworkImageState();
+}
+
+class _HtmlNetworkImageState extends State<HtmlNetworkImage> {
+  late final String viewType;
+
+  static final Set<String> registeredViewTypes = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+
+    viewType = 'guest-speaker-image-${widget.url.hashCode}';
+
+    if (!registeredViewTypes.contains(viewType)) {
+      registeredViewTypes.add(viewType);
+
+      ui_web.platformViewRegistry.registerViewFactory(
+        viewType,
+        (int viewId) {
+          final image = html.ImageElement()
+            ..src = widget.url
+            ..style.width = '100%'
+            ..style.height = '100%'
+            ..style.objectFit = 'cover'
+            ..style.border = '0'
+            ..style.display = 'block';
+
+          return image;
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HtmlElementView(viewType: viewType);
+  }
+}
+
 
 class SpeakerQuestionSheet extends StatefulWidget {
   final _SpeakerData speaker;
