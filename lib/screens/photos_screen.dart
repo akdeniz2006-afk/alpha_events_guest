@@ -1,3 +1,5 @@
+import 'dart:html' as html;
+
 import 'package:flutter/material.dart';
 
 import '../data/demo_event_data.dart';
@@ -21,20 +23,16 @@ class PhotosScreen extends StatelessWidget {
           children: [
             openedAsSubPage
                 ? const BackHeader(
-                    title: 'Fotoğraflar',
-                    subtitle: 'Etkinlik fotoğrafları ve indirme alanı',
+                    title: 'Foto\u011Fraflar',
+                    subtitle: 'Etkinlik alb\u00FCm\u00FC',
                   )
                 : const HeaderTitle(
-                    title: 'Fotoğraflar',
-                    subtitle: 'Etkinlik fotoğrafları ve indirme alanı',
+                    title: 'Foto\u011Fraflar',
+                    subtitle: 'Etkinlik alb\u00FCm\u00FC',
                   ),
-            const SizedBox(height: 20),
-            const PhotosHeroCard(),
             const SizedBox(height: 18),
-            const PhotoDownloadInfoCard(),
-            const SizedBox(height: 22),
             const Text(
-              'Etkinlik Albümü',
+              'Etkinlik Alb\u00FCm\u00FC',
               style: TextStyle(
                 color: Colors.white,
                 decoration: TextDecoration.none,
@@ -61,211 +59,8 @@ class PhotosScreen extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 10),
-            const PhotoFooterNote(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class PhotosHeroCard extends StatelessWidget {
-  const PhotosHeroCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final String imagePath = demoEventPhotos.isNotEmpty
-        ? demoEventPhotos.first
-        : '';
-
-    return Container(
-      height: 246,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withOpacity(0.10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.38),
-            blurRadius: 30,
-            offset: const Offset(0, 18),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(31),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (imagePath.isNotEmpty)
-              Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              )
-            else
-              Container(
-                color: Colors.white.withOpacity(0.08),
-                child: const Icon(
-                  Icons.photo_library_rounded,
-                  size: 62,
-                  color: Colors.white,
-                ),
-              ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.05),
-                    Colors.black.withOpacity(0.24),
-                    Colors.black.withOpacity(0.82),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 18,
-              top: 18,
-              child: Container(
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 11),
-                decoration: BoxDecoration(
-                  color: AppColors.champagne.withOpacity(0.16),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.champagne.withOpacity(0.24),
-                  ),
-                ),
-                child: const Center(
-                  child: Text(
-                    'ETKİNLİK ALBÜMÜ',
-                    style: TextStyle(
-                      color: AppColors.champagne,
-                      decoration: TextDecoration.none,
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 18,
-              right: 18,
-              bottom: 18,
-              child: Row(
-                children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withOpacity(0.14)),
-                    ),
-                    child: const Icon(
-                      Icons.collections_rounded,
-                      color: Colors.white,
-                      size: 27,
-                    ),
-                  ),
-                  const SizedBox(width: 13),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Etkinlik Fotoğrafları',
-                          style: TextStyle(
-                            color: Colors.white,
-                            decoration: TextDecoration.none,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          '${demoEventPhotos.length} fotoğraf görüntülenebilir',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.68),
-                            decoration: TextDecoration.none,
-                            fontSize: 12.6,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PhotoDownloadInfoCard extends StatelessWidget {
-  const PhotoDownloadInfoCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(radius: 26, opacity: 0.070),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.champagne.withOpacity(0.13),
-              borderRadius: BorderRadius.circular(17),
-              border: Border.all(color: AppColors.champagne.withOpacity(0.20)),
-            ),
-            child: const Icon(
-              Icons.cloud_download_rounded,
-              color: AppColors.champagne,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 13),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Fotoğrafları görüntüleyin ve indirin',
-                  style: TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.none,
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'Etkinlik sonrası seçilen fotoğraflar burada yayınlanır. Katılımcılar fotoğrafları önizleyebilir ve indirebilir.',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.58),
-                    decoration: TextDecoration.none,
-                    fontSize: 12.7,
-                    height: 1.35,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -284,11 +79,15 @@ class EventPhotoGridCard extends StatelessWidget {
   void openPreview(BuildContext context) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.88),
+      barrierColor: Colors.black.withOpacity(0.94),
       builder: (_) {
         return EventPhotoPreviewDialog(imagePath: imagePath, index: index);
       },
     );
+  }
+
+  void downloadPhoto(BuildContext context) {
+    downloadAssetPhoto(context, imagePath, index);
   }
 
   @override
@@ -324,8 +123,8 @@ class EventPhotoGridCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.16),
-                      Colors.black.withOpacity(0.42),
+                      Colors.black.withOpacity(0.12),
+                      Colors.black.withOpacity(0.46),
                     ],
                   ),
                 ),
@@ -337,9 +136,9 @@ class EventPhotoGridCard extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.34),
+                    color: Colors.black.withOpacity(0.36),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.12)),
+                    border: Border.all(color: Colors.white.withOpacity(0.14)),
                   ),
                   child: const Icon(
                     Icons.open_in_full_rounded,
@@ -356,7 +155,7 @@ class EventPhotoGridCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Fotoğraf ${index + 1}',
+                        'Foto\u011Fraf ${index + 1}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -367,20 +166,23 @@ class EventPhotoGridCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.12),
+                    GestureDetector(
+                      onTap: () => downloadPhoto(context),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: AppColors.champagne.withOpacity(0.20),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.champagne.withOpacity(0.28),
+                          ),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.download_rounded,
-                        color: Colors.white,
-                        size: 17,
+                        child: const Icon(
+                          Icons.download_rounded,
+                          color: AppColors.champagne,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ],
@@ -404,157 +206,183 @@ class EventPhotoPreviewDialog extends StatelessWidget {
     required this.index,
   });
 
-  void showDownloadMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Fotoğraf ${index + 1} demo olarak indirilecek.'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xFF1F1F24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-    );
+  void downloadPhoto(BuildContext context) {
+    downloadAssetPhoto(context, imagePath, index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: Stack(
-              children: [
-                Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.52),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.16),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                    ),
+      insetPadding: EdgeInsets.zero,
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                minScale: 0.8,
+                maxScale: 4,
+                child: Center(
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: glassDecoration(radius: 22, opacity: 0.090),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.collections_rounded,
-                  color: AppColors.champagne,
-                  size: 22,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Etkinlik fotoğrafı ${index + 1}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                    ),
+            Positioned(
+              top: 14,
+              right: 14,
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.58),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.16)),
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 24,
                   ),
                 ),
-                PressableScale(
-                  onTap: () => showDownloadMessage(context),
-                  child: Container(
-                    height: 38,
-                    padding: const EdgeInsets.symmetric(horizontal: 13),
-                    decoration: BoxDecoration(
-                      color: AppColors.champagne.withOpacity(0.13),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: AppColors.champagne.withOpacity(0.24),
+              ),
+            ),
+            Positioned(
+              left: 18,
+              right: 18,
+              bottom: 18,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 46,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.56),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white.withOpacity(0.12)),
                       ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.download_rounded,
-                          size: 17,
-                          color: AppColors.champagne,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          'İndir',
-                          style: TextStyle(
-                            color: AppColors.champagne,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Foto\u011Fraf ${index + 1}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
                             decoration: TextDecoration.none,
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  PressableScale(
+                    onTap: () => downloadPhoto(context),
+                    child: Container(
+                      height: 46,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.champagne,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.champagne.withOpacity(0.24),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.download_rounded,
+                            size: 18,
+                            color: Color(0xFF111827),
+                          ),
+                          SizedBox(width: 7),
+                          Text(
+                            '\u0130ndir',
+                            style: TextStyle(
+                              color: Color(0xFF111827),
+                              decoration: TextDecoration.none,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class PhotoFooterNote extends StatelessWidget {
-  const PhotoFooterNote({super.key});
+String makeSafeFileName(String value) {
+  return value
+      .toLowerCase()
+      .replaceAll('\u011F', 'g')
+      .replaceAll('\u00FC', 'u')
+      .replaceAll('\u015F', 's')
+      .replaceAll('\u0131', 'i')
+      .replaceAll('\u00F6', 'o')
+      .replaceAll('\u00E7', 'c')
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'-+'), '-')
+      .replaceAll(RegExp(r'^-|-$'), '');
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: glassDecoration(radius: 24, opacity: 0.060),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.champagne,
-            size: 21,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Gerçek yayında etkinlik fotoğrafları admin panelden yüklenir. Katılımcılar seçilen fotoğrafları bu ekrandan görüntüleyebilir ve indirebilir.',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.58),
-                decoration: TextDecoration.none,
-                height: 1.35,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+void downloadAssetPhoto(BuildContext context, String imagePath, int index) {
+  try {
+    final String url = imagePath.startsWith('http')
+        ? imagePath
+        : 'assets/$imagePath';
+
+    final String extension = imagePath.split('.').last.toLowerCase();
+    final String safeExtension = extension.length <= 5 ? extension : 'jpg';
+
+    final html.AnchorElement anchor = html.AnchorElement(href: url)
+      ..setAttribute(
+        'download',
+        '${makeSafeFileName(demoGuest.eventTitle)}-fotograf-${index + 1}.$safeExtension',
+      )
+      ..style.display = 'none';
+
+    html.document.body?.append(anchor);
+    anchor.click();
+    anchor.remove();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Foto\u011Fraf ${index + 1} indiriliyor.'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1F1F24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    );
+  } catch (_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Foto\u011Fraf indirilemedi. L\u00FCtfen foto\u011Fraf\u0131 a\u00E7\u0131p bas\u0131l\u0131 tutarak kaydedin.',
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1F1F24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
+import '../widgets/pwa_install_button.dart';
 
 import 'activities_screen.dart';
 import 'announcements_screen.dart';
@@ -388,6 +389,8 @@ class DashboardTopBar extends StatelessWidget {
             ],
           ),
         ),
+        const PwaInstallButton(),
+        const SizedBox(width: 10),
         PressableScale(
           onTap: () => showLogoutDialog(context),
           child: Container(
@@ -1221,3 +1224,4 @@ class _AnimatedHoverLiftState extends State<AnimatedHoverLift> {
     );
   }
 }
+
