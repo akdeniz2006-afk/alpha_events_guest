@@ -1,4 +1,6 @@
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/demo_event_data.dart';
 import '../theme/app_colors.dart';
@@ -18,6 +20,10 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
   int programScore = 0;
   int accommodationScore = 0;
   int supportScore = 0;
+
+  bool isSubmitting = false;
+  bool isSubmitted = false;
+
   final TextEditingController commentController = TextEditingController();
 
   @override
@@ -26,11 +32,80 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
     super.dispose();
   }
 
-  void submitEvaluation() {
-    showEvaluationMessage(
-      context,
-      'Teşekkür ederiz. Değerlendirmeniz demo olarak kaydedildi.',
-    );
+  Future<void> submitEvaluation() async {
+    if (isSubmitting || isSubmitted) return;
+
+    if (organizationScore == 0 ||
+        programScore == 0 ||
+        accommodationScore == 0 ||
+        supportScore == 0) {
+      showEvaluationMessage(
+        context,
+        'Lütfen tüm başlıklar için puan seçin.',
+      );
+      return;
+    }
+
+    setState(() {
+      isSubmitting = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final String eventId = prefs.getString('eventId') ?? 'zurich_2026';
+      final String guestId = prefs.getString('guestId') ?? '';
+      final String guestName = prefs.getString('guestName') ?? '';
+      final String guestCode = prefs.getString('guestCode') ?? '';
+      final String whatsappNumber = prefs.getString('whatsappNumber') ?? '';
+
+      final double averageScore = (
+        organizationScore +
+        programScore +
+        accommodationScore +
+        supportScore
+      ) / 4;
+
+      await FirebaseFirestore.instance.collection('event_feedback').add({
+        'eventId': eventId,
+        'guestId': guestId,
+        'guestName': guestName,
+        'guestCode': guestCode,
+        'whatsappNumber': whatsappNumber,
+        'organizationScore': organizationScore,
+        'programScore': programScore,
+        'accommodationScore': accommodationScore,
+        'supportScore': supportScore,
+        'averageScore': averageScore,
+        'comment': commentController.text.trim(),
+        'source': 'guest_app',
+        'status': 'submitted',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      setState(() {
+        isSubmitting = false;
+        isSubmitted = true;
+      });
+
+      showEvaluationMessage(
+        context,
+        'Değerlendirmeniz alındı. Teşekkür ederiz.',
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        isSubmitting = false;
+      });
+
+      showEvaluationMessage(
+        context,
+        'Değerlendirme gönderilemedi. Lütfen tekrar deneyin.',
+      );
+    }
   }
 
   @override
@@ -53,44 +128,52 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
               subtitle:
                   'Etkinliğin genel akışı, karşılama ve deneyim kalitesi.',
               score: organizationScore,
-              onChanged: (value) {
-                setState(() {
-                  organizationScore = value;
-                });
-              },
+              onChanged: isSubmitted
+                  ? (_) {}
+                  : (value) {
+                      setState(() {
+                        organizationScore = value;
+                      });
+                    },
             ),
             const SizedBox(height: 14),
             EvaluationQuestionCard(
               title: 'Program akışı nasıldı?',
               subtitle: 'Saat planı, içerik akışı ve yönlendirmeler.',
               score: programScore,
-              onChanged: (value) {
-                setState(() {
-                  programScore = value;
-                });
-              },
+              onChanged: isSubmitted
+                  ? (_) {}
+                  : (value) {
+                      setState(() {
+                        programScore = value;
+                      });
+                    },
             ),
             const SizedBox(height: 14),
             EvaluationQuestionCard(
               title: 'Konaklama deneyiminiz nasıldı?',
               subtitle: 'Otel, oda, check-in ve konaklama notları.',
               score: accommodationScore,
-              onChanged: (value) {
-                setState(() {
-                  accommodationScore = value;
-                });
-              },
+              onChanged: isSubmitted
+                  ? (_) {}
+                  : (value) {
+                      setState(() {
+                        accommodationScore = value;
+                      });
+                    },
             ),
             const SizedBox(height: 14),
             EvaluationQuestionCard(
               title: 'Etkinlik destek deneyimi nasıldı?',
               subtitle: 'Koordinasyon, iletişim ve destek süreçleri.',
               score: supportScore,
-              onChanged: (value) {
-                setState(() {
-                  supportScore = value;
-                });
-              },
+              onChanged: isSubmitted
+                  ? (_) {}
+                  : (value) {
+                      setState(() {
+                        supportScore = value;
+                      });
+                    },
             ),
             const SizedBox(height: 18),
             const Text(
@@ -112,6 +195,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
               ),
               child: TextField(
                 controller: commentController,
+                enabled: !isSubmitted,
                 maxLines: 5,
                 style: const TextStyle(
                   color: Colors.white,
@@ -133,34 +217,48 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             const SizedBox(height: 18),
             PressableScale(
               onTap: submitEvaluation,
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
                 height: 58,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF2E5E8C), Color(0xFF4C82AE)],
+                    colors: isSubmitted
+                        ? const [Color(0xFF0F766E), Color(0xFF115E59)]
+                        : const [Color(0xFF2E5E8C), Color(0xFF4C82AE)],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF4C82AE).withOpacity(0.28),
+                      color: const Color(0xFF4C82AE).withOpacity(0.28),
                       blurRadius: 22,
-                      offset: Offset(0, 14),
+                      offset: const Offset(0, 14),
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Text(
-                    'Değerlendirmeyi Gönder',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                child: Center(
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.4,
+                          ),
+                        )
+                      : Text(
+                          isSubmitted
+                              ? 'Değerlendirme Gönderildi'
+                              : 'Değerlendirmeyi Gönder',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -189,9 +287,9 @@ class EvaluationHeroCard extends StatelessWidget {
         border: Border.all(color: Colors.white.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF263B58).withOpacity(0.25),
+            color: const Color(0xFF263B58).withOpacity(0.25),
             blurRadius: 28,
-            offset: Offset(0, 18),
+            offset: const Offset(0, 18),
           ),
         ],
       ),

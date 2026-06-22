@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
 
-    phoneController.text = '+90 532 123 45 67';
+    phoneController.text = '';
     codeController.text = '';
 
     checkSavedLogin();
@@ -273,28 +273,6 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 26),
               const LoginHeroCard(),
               const SizedBox(height: 28),
-              const Text(
-                'Giriş',
-                style: TextStyle(
-                  color: Colors.white,
-                  decoration: TextDecoration.none,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.6,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Etkinlik bilgilerinize ulaşmak için size tanımlanan telefon numarası ve katılımcı kodu ile giriş yapın.',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.58),
-                  decoration: TextDecoration.none,
-                  height: 1.38,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 18),
               LoginModeSelector(
                 selectedMode: loginMode,
                 onChanged: (mode) {
@@ -309,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 LoginTextField(
                   controller: phoneController,
                   label: 'Telefon numarası',
-                  hint: '+90 532 123 45 67',
+                  hint: '+90 5XX XXX XX XX',
                   icon: Icons.phone_rounded,
                   keyboardType: TextInputType.phone,
                   errorText: errorText,
@@ -423,7 +401,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       Text(
-                        'Sonraki girişte kod isteme',
+                        '',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.42),
                           decoration: TextDecoration.none,
@@ -491,40 +469,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: glassDecoration(radius: 22, opacity: 0.06),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.verified_user_rounded,
-                      size: 21,
-                      color: AppColors.champagne,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        loginMode == 'guest'
-                            ? (previewWhatsapp.isEmpty
-                                ? 'Giriş güvenliği için telefon numarası ve katılımcı kodu birlikte kontrol edilir.'
-                                : 'WhatsApp eşleşmesi: $previewWhatsapp\nTelefon numarası ve katılımcı kodu birlikte doğruysa giriş yapılır. Beni hatırla açıksa sonraki açılışta otomatik geçilir.')
-                            : 'Operasyon modunda katılımcı listesi, oda, transfer, check-in ve aktivite bilgileri görülür. Telefon, WhatsApp ve e-posta bilgileri gizlenir.',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.58),
-                          decoration: TextDecoration.none,
-                          height: 1.35,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -651,7 +596,6 @@ class LoginHeroCard extends StatelessWidget {
             ),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 76,
@@ -663,6 +607,7 @@ class LoginHeroCard extends StatelessWidget {
               const Spacer(),
               Text(
                 demoGuest.eventTitle,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
                   decoration: TextDecoration.none,
@@ -675,6 +620,7 @@ class LoginHeroCard extends StatelessWidget {
               const SizedBox(height: 9),
               Text(
                 '${demoGuest.eventDate} · ${demoGuest.location}',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.58),
                   decoration: TextDecoration.none,
@@ -682,36 +628,7 @@ class LoginHeroCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 14),
-              Container(
-                height: 34,
-                padding: const EdgeInsets.symmetric(horizontal: 11),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.white.withOpacity(0.10)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.verified_rounded,
-                      size: 16,
-                      color: Colors.white.withOpacity(0.76),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Katılımcı Portalı',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.76),
-                        decoration: TextDecoration.none,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 10),
             ],
           ),
         ],
@@ -929,3 +846,8 @@ class LoginTextField extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
