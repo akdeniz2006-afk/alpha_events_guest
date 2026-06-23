@@ -21,6 +21,7 @@ import 'transport_screen.dart';
 import 'videos_screen.dart';
 import 'evaluation_screen.dart';
 import '../speakers_screen.dart';
+import '../business_card_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -74,6 +75,17 @@ class DashboardScreen extends StatelessWidget {
                     icon: Icons.record_voice_over_rounded,
                     accent: const Color(0xFF9B8AFB),
                     onTap: () => openPage(context, const SpeakersScreen()),
+                  ),
+                ),
+
+                AnimatedEntrance(
+                  delay: 227,
+                  child: CompactDashboardButton(
+                    title: 'Kartvizitim',
+                    subtitle: 'QR ile paylaş',
+                    icon: Icons.badge_rounded,
+                    accent: const Color(0xFF14B8A6),
+                    onTap: () => openPage(context, const BusinessCardScreen()),
                   ),
                 ),
                 AnimatedEntrance(
