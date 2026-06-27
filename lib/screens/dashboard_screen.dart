@@ -22,6 +22,8 @@ import 'videos_screen.dart';
 import 'evaluation_screen.dart';
 import '../speakers_screen.dart';
 import '../business_card_screen.dart';
+import '../push_notification_service.dart';
+import 'notification_permission_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -86,6 +88,20 @@ class DashboardScreen extends StatelessWidget {
                     icon: Icons.badge_rounded,
                     accent: const Color(0xFF14B8A6),
                     onTap: () => openPage(context, const BusinessCardScreen()),
+                  ),
+                ),
+
+                AnimatedEntrance(
+                  delay: 229,
+                  child: CompactDashboardButton(
+                    title: 'Bildirimler',
+                    subtitle: 'Push izni ver',
+                    icon: Icons.notifications_active_rounded,
+                    accent: const Color(0xFFF59E0B),
+                    onTap: () => openPage(
+                      context,
+                      const NotificationPermissionScreen(),
+                    ),
                   ),
                 ),
                 AnimatedEntrance(
@@ -196,6 +212,7 @@ class _AnimatedEntranceState extends State<AnimatedEntrance> {
   @override
   void initState() {
     super.initState();
+    PushNotificationService.initializeAndSaveToken();
     timer = Timer(Duration(milliseconds: widget.delay), () {
       if (!mounted) return;
       setState(() {
