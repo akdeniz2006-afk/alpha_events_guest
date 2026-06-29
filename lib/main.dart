@@ -1,8 +1,9 @@
-﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
+import 'screens/stage_poll_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,7 @@ class AlphaEventsGuestApp extends StatelessWidget {
         fontFamily: 'Arial',
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: Uri.base.toString().contains('stage-poll') ? const StagePollScreen() : const LoginScreen(),
     );
   }
 }
