@@ -245,6 +245,12 @@ match /event_notifications/{notificationId} {
 
 match /{document=**} {
       allow read, write: if false;
+
+      match /event_faqs/{faqId} {
+        allow read: if true;
+        allow create, update, delete: if true;
+      }
+
     }
   }
 }
