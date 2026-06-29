@@ -25,6 +25,7 @@ import '../business_card_screen.dart';
 import '../push_notification_service.dart';
 import 'notification_permission_screen.dart';
 import 'faqs_screen.dart';
+import 'live_poll_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -184,6 +185,13 @@ class DashboardScreen extends StatelessWidget {
                 onTap: () => openPage(context, const QrCodeScreen()),
               ),
             ),
+                const SizedBox(height: 12),
+                AnimatedEntrance(
+                  delay: 420,
+                  child: LivePollAccessCard(
+                    onTap: () => openPage(context, const LivePollScreen()),
+                  ),
+                ),
             const SizedBox(height: 12),
 
             AnimatedEntrance(
@@ -1157,6 +1165,87 @@ class _AnimatedGlowIconContainerState extends State<AnimatedGlowIconContainer>
   }
 }
 
+
+
+class LivePollAccessCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const LivePollAccessCard({
+    super.key,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(26),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF06122D),
+              Color(0xFF2563EB),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x22000000),
+              blurRadius: 18,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: const Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: Color(0x22FFFFFF),
+              child: Icon(
+                Icons.poll_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Canlı Anket',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Sahnedeki soruyu telefonundan yanıtla',
+                    style: TextStyle(
+                      color: Color(0xFFE2E8F0),
+                      fontSize: 13,
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class SssAccessCard extends StatelessWidget {
   final VoidCallback onTap;

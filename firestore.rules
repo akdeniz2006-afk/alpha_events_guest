@@ -246,6 +246,17 @@ match /event_notifications/{notificationId} {
 match /{document=**} {
       allow read, write: if false;
 
+
+      match /event_polls/{pollId} {
+        allow read: if true;
+        allow create, update, delete: if true;
+      }
+
+      match /event_poll_answers/{answerId} {
+        allow read: if true;
+        allow create, update, delete: if true;
+      }
+
       match /event_faqs/{faqId} {
         allow read: if true;
         allow create, update, delete: if true;
