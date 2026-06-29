@@ -152,6 +152,7 @@ const List<String> demoHotelPhotos = [
   'assets/hotels/indir (1).jpg',
   'assets/hotels/OIP.jpg',
   'assets/hotels/OIP (1).jpg',
+  'assets/hotels/swissotel_6.jpg',
 ];
 
 const List<ProgramItem> demoProgram = [

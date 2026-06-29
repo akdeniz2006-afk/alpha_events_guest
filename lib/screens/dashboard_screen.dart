@@ -38,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppPage(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 140),
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 150),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -54,6 +54,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             GridView.count(
+              padding: EdgeInsets.zero,
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -176,50 +177,49 @@ class DashboardScreen extends StatelessWidget {
                     onTap: () => openPage(context, const HotelGalleryScreen()),
                   ),
                 ),
+                AnimatedEntrance(
+                  delay: 430,
+                  child: CompactDashboardButton(
+                    title: 'Yakın Çevre',
+                    subtitle: 'Harita & çevre',
+                    icon: Icons.near_me_rounded,
+                    accent: const Color(0xFF34D399),
+                    onTap: () => openPage(context, const HotelGalleryScreen()),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 44),
             AnimatedEntrance(
-              delay: 460,
+              delay: 440,
+              child: LivePollAccessCard(
+                onTap: () => openPage(context, const LivePollScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            AnimatedEntrance(
+              delay: 470,
+              child: SssAccessCard(
+                onTap: () => openPage(context, const FaqsScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            AnimatedEntrance(
+              delay: 500,
               child: QrAccessCard(
                 onTap: () => openPage(context, const QrCodeScreen()),
               ),
             ),
-                const SizedBox(height: 12),
-                AnimatedEntrance(
-                  delay: 420,
-                  child: LivePollAccessCard(
-                    onTap: () => openPage(context, const LivePollScreen()),
-                  ),
-                ),
             const SizedBox(height: 12),
-
-            AnimatedEntrance(
-
-              delay: 480,
-
-              child: SssAccessCard(
-
-                onTap: () => openPage(context, const FaqsScreen()),
-
-              ),
-
-            ),
-
-            const SizedBox(height: 12),
-
             const AnimatedEntrance(
-
-              delay: 500,
-
+              delay: 530,
               child: DailyNotesCompactButton(),
-
             ),
-                const SizedBox(height: 12),
-                const AnimatedEntrance(
-                  delay: 560,
-                  child: ZurichGptwImageCard(),
-                ),
+            const SizedBox(height: 12),
+            const AnimatedEntrance(
+              delay: 560,
+              child: ZurichGptwImageCard(),
+            ),
           ],
         ),
       ),

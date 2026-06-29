@@ -15,11 +15,11 @@ class GlassBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _NavItem(icon: Icons.home_rounded, label: 'Ana Sayfa'),
-      _NavItem(icon: Icons.calendar_month_rounded, label: 'Program'),
-      _NavItem(icon: Icons.hotel_rounded, label: 'Odam'),
-      _NavItem(icon: Icons.photo_library_rounded, label: 'Fotoğraflar'),
-      _NavItem(icon: Icons.support_agent_rounded, label: 'Yardım'),
+      _NavItem(icon: Icons.home_rounded, label: 'Ana Sayfa', color: Color(0xFF60A5FA)),
+      _NavItem(icon: Icons.calendar_month_rounded, label: 'Program', color: Color(0xFF38BDF8)),
+      _NavItem(icon: Icons.hotel_rounded, label: 'Odam', color: Color(0xFFFBBF24)),
+      _NavItem(icon: Icons.photo_library_rounded, label: 'Fotoğraflar', color: Color(0xFFA78BFA)),
+      _NavItem(icon: Icons.support_agent_rounded, label: 'Yardım', color: Color(0xFF34D399)),
     ];
 
     return Center(
@@ -27,71 +27,104 @@ class GlassBottomNavigation extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 430),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(32),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
               child: Container(
-                height: 72,
+                height: 68,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.09),
+                  color: const Color(0xFF111827).withOpacity(0.88),
                   borderRadius: BorderRadius.circular(32),
-                  border: Border.all(color: Colors.white.withOpacity(0.13)),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.20),
+                    width: 1.1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.42),
-                      blurRadius: 28,
+                      color: Colors.black.withOpacity(0.58),
+                      blurRadius: 30,
                       offset: const Offset(0, 16),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withOpacity(0.16),
+                      blurRadius: 24,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: List.generate(items.length, (index) {
                     final item = items[index];
                     final isSelected = index == selectedIndex;
 
-                    return GestureDetector(
-                      onTap: () => onChanged(index),
-                      behavior: HitTestBehavior.opaque,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 220),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.white.withOpacity(0.16)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              item.icon,
-                              size: 22,
-                              color: isSelected
-                                  ? Colors.white
-                                  : Colors.white.withOpacity(0.52),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item.label,
-                              style: TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: isSelected
-                                    ? FontWeight.w800
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.50),
-                                decoration: TextDecoration.none,
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => onChanged(index),
+                        behavior: HitTestBehavior.opaque,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 6,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? item.color.withOpacity(0.16)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(24),
+                            border: isSelected
+                                ? Border.all(
+                                    color: item.color.withOpacity(0.28),
+                                  )
+                                : null,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: isSelected ? 31 : 27,
+                                height: isSelected ? 31 : 27,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? item.color.withOpacity(0.28)
+                                      : item.color.withOpacity(0.13),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  item.icon,
+                                  size: isSelected ? 19 : 17,
+                                  color: isSelected
+                                      ? item.color
+                                      : item.color.withOpacity(0.82),
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 3),
+                              Text(
+                                item.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isSelected ? 9.2 : 8.8,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w900
+                                      : FontWeight.w700,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.70),
+                                  decoration: TextDecoration.none,
+                                  height: 1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -109,6 +142,11 @@ class GlassBottomNavigation extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
+  final Color color;
 
-  const _NavItem({required this.icon, required this.label});
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 }
