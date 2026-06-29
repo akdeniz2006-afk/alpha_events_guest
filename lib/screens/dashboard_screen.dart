@@ -215,6 +215,11 @@ class DashboardScreen extends StatelessWidget {
               child: DailyNotesCompactButton(),
 
             ),
+                const SizedBox(height: 12),
+                const AnimatedEntrance(
+                  delay: 560,
+                  child: ZurichGptwImageCard(),
+                ),
           ],
         ),
       ),
@@ -1422,6 +1427,22 @@ class QrAccessCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ZurichGptwImageCard extends StatelessWidget {
+  const ZurichGptwImageCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: Image.asset(
+        'assets/logos/zurich_gptw.jpg',
+        width: double.infinity,
+        fit: BoxFit.cover,
       ),
     );
   }
