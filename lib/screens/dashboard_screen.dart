@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/demo_event_data.dart';
+import '../l10n/app_language.dart';
+import '../l10n/app_text.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/client_logo_badge.dart';
 import '../widgets/pressable_scale.dart';
-import '../widgets/pwa_install_button.dart';
 
 import 'activities_screen.dart';
 import 'announcements_screen.dart';
@@ -36,8 +37,11 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPage(
-      child: SingleChildScrollView(
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.notifier,
+      builder: (context, languageCode, _) {
+        return AppPage(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 14, 18, 150),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,12 +49,10 @@ class DashboardScreen extends StatelessWidget {
             const AnimatedEntrance(delay: 0, child: DashboardTopBar()),
             const SizedBox(height: 18),
             const AnimatedEntrance(delay: 80, child: CleanHeroCard()),
-            const SizedBox(height: 18),
-            const AnimatedEntrance(delay: 140, child: TodayCompactCard()),
-            const SizedBox(height: 22),
-            const AnimatedEntrance(
+            const SizedBox(height: 24),
+            AnimatedEntrance(
               delay: 180,
-              child: DashboardSectionTitle(title: 'Hızlı Erişim'),
+              child: DashboardSectionTitle(title: AppText.t('dashboard.quickAccess')),
             ),
             const SizedBox(height: 12),
             GridView.count(
@@ -65,8 +67,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 220,
                   child: CompactDashboardButton(
-                    title: 'Program',
-                    subtitle: 'Gün akışı',
+                    title: AppText.t('dashboard.program'),
+                    subtitle: AppText.t('dashboard.programSubtitle'),
                     icon: Icons.calendar_month_rounded,
                     accent: const Color(0xFF7EA7D8),
                     onTap: () => openPage(context, const ProgramScreen()),
@@ -75,8 +77,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 225,
                   child: CompactDashboardButton(
-                    title: 'Konuşmacılar',
-                    subtitle: 'Soru sor',
+                    title: AppText.t('dashboard.speakers'),
+                    subtitle: AppText.t('dashboard.speakersSubtitle'),
                     icon: Icons.record_voice_over_rounded,
                     accent: const Color(0xFF9B8AFB),
                     onTap: () => openPage(context, const SpeakersScreen()),
@@ -86,8 +88,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 227,
                   child: CompactDashboardButton(
-                    title: 'Kartvizitim',
-                    subtitle: 'QR ile paylaş',
+                    title: AppText.t('dashboard.businessCard'),
+                    subtitle: AppText.t('dashboard.businessCardSubtitle'),
                     icon: Icons.badge_rounded,
                     accent: const Color(0xFF14B8A6),
                     onTap: () => openPage(context, const BusinessCardScreen()),
@@ -97,8 +99,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 229,
                   child: CompactDashboardButton(
-                    title: 'Bildirimler',
-                    subtitle: 'Push izni ver',
+                    title: AppText.t('dashboard.notifications'),
+                    subtitle: AppText.t('dashboard.notificationsSubtitle'),
                     icon: Icons.notifications_active_rounded,
                     accent: const Color(0xFFF59E0B),
                     onTap: () => openPage(
@@ -110,8 +112,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 230,
                   child: CompactDashboardButton(
-                    title: 'Ulaşım',
-                    subtitle: 'Transfer bilgileri',
+                    title: AppText.t('dashboard.transport'),
+                    subtitle: AppText.t('dashboard.transportSubtitle'),
                     icon: Icons.directions_bus_rounded,
                     accent: const Color(0xFFD6B16A),
                     onTap: () => openPage(context, const TransportScreen()),
@@ -120,8 +122,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 240,
                   child: CompactDashboardButton(
-                    title: 'Aktiviteler',
-                    subtitle: 'Katılım onayı',
+                    title: AppText.t('dashboard.activities'),
+                    subtitle: AppText.t('dashboard.activitiesSubtitle'),
                     icon: Icons.event_available_rounded,
                     accent: const Color(0xFF72C7C2),
                     onTap: () => openPage(context, const ActivitiesScreen()),
@@ -130,8 +132,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 260,
                   child: CompactDashboardButton(
-                    title: 'Duyurular',
-                    subtitle: 'Son bilgiler',
+                    title: AppText.t('dashboard.announcements'),
+                    subtitle: AppText.t('dashboard.announcementsSubtitle'),
                     icon: Icons.notifications_rounded,
                     accent: const Color(0xFFD6B16A),
                     onTap: () => openPage(context, const AnnouncementsScreen()),
@@ -140,8 +142,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 300,
                   child: CompactDashboardButton(
-                    title: 'Değerlendirme',
-                    subtitle: 'Geri bildirim',
+                    title: AppText.t('dashboard.evaluation'),
+                    subtitle: AppText.t('dashboard.evaluationSubtitle'),
                     icon: Icons.rate_review_rounded,
                     accent: const Color(0xFFC7B58A),
                     onTap: () => openPage(context, const EvaluationScreen()),
@@ -150,8 +152,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 340,
                   child: CompactDashboardButton(
-                    title: 'Acil Destek',
-                    subtitle: 'Koordinatör',
+                    title: AppText.t('dashboard.emergency'),
+                    subtitle: AppText.t('dashboard.emergencySubtitle'),
                     icon: Icons.support_agent_rounded,
                     accent: const Color(0xFFAAB4C3),
                     onTap: () => openPage(context, const HelpScreen()),
@@ -160,8 +162,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 380,
                   child: CompactDashboardButton(
-                    title: 'Videolar',
-                    subtitle: 'Bilgilendirme',
+                    title: AppText.t('dashboard.videos'),
+                    subtitle: AppText.t('dashboard.videosSubtitle'),
                     icon: Icons.play_circle_fill_rounded,
                     accent: const Color(0xFF72C7C2),
                     onTap: () => openPage(context, const VideosScreen()),
@@ -170,8 +172,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 420,
                   child: CompactDashboardButton(
-                    title: 'Otel Galerisi',
-                    subtitle: 'Fotoğraflar',
+                    title: AppText.t('dashboard.hotelGallery'),
+                    subtitle: AppText.t('dashboard.hotelGallerySubtitle'),
                     icon: Icons.apartment_rounded,
                     accent: const Color(0xFF9B8AD8),
                     onTap: () => openPage(context, const HotelGalleryScreen()),
@@ -180,8 +182,8 @@ class DashboardScreen extends StatelessWidget {
                 AnimatedEntrance(
                   delay: 430,
                   child: CompactDashboardButton(
-                    title: 'Yakın Çevre',
-                    subtitle: 'Harita & çevre',
+                    title: AppText.t('dashboard.nearby'),
+                    subtitle: AppText.t('dashboard.nearbySubtitle'),
                     icon: Icons.near_me_rounded,
                     accent: const Color(0xFF34D399),
                     onTap: () => openPage(context, const HotelGalleryScreen()),
@@ -222,7 +224,9 @@ class DashboardScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -271,6 +275,67 @@ class _AnimatedEntranceState extends State<AnimatedEntrance> {
         curve: Curves.easeOutCubic,
         child: widget.child,
       ),
+    );
+  }
+}
+
+
+
+class LanguageToggleButton extends StatefulWidget {
+  const LanguageToggleButton({super.key});
+
+  @override
+  State<LanguageToggleButton> createState() => _LanguageToggleButtonState();
+}
+
+class _LanguageToggleButtonState extends State<LanguageToggleButton> {
+  @override
+  void initState() {
+    super.initState();
+    AppLanguage.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.notifier,
+      builder: (context, languageCode, _) {
+        final isEnglish = languageCode == 'en';
+
+        return PressableScale(
+          onTap: () => AppLanguage.toggle(),
+          child: Container(
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: 11),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.white.withOpacity(0.14)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.language_rounded,
+                  color: Colors.white.withOpacity(0.88),
+                  size: 17,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  isEnglish ? 'EN' : 'TR',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -327,8 +392,8 @@ class DashboardTopBar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Çıkış yapılsın mı?',
+                Text(
+                  AppText.t('logout.title'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -340,7 +405,7 @@ class DashboardTopBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Çıkış yaptığınızda bir sonraki girişte telefon numarası ve katılımcı kodu tekrar istenir.',
+                  AppText.t('logout.message'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.58),
@@ -366,8 +431,8 @@ class DashboardTopBar extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Vazgeç',
+                        child: Text(
+                          AppText.t('logout.cancel'),
                           style: TextStyle(fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -387,8 +452,8 @@ class DashboardTopBar extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Çıkış Yap',
+                        child: Text(
+                          AppText.t('logout.confirm'),
                           style: TextStyle(fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -411,12 +476,12 @@ class DashboardTopBar extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 56,
+                height: 56,
                 padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white.withOpacity(0.12)),
                   boxShadow: [
                     BoxShadow(
@@ -440,25 +505,27 @@ class DashboardTopBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Alpha Events',
+                      'Alpha',
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.visible,
                       style: TextStyle(
                         color: Colors.white,
                         decoration: TextDecoration.none,
-                        fontSize: 22,
+                        fontSize: 23,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: -0.6,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    SizedBox(height: 2),
                     Text(
-                      'Guest Portal',
+                      'Events',
+                      maxLines: 1,
+                      overflow: TextOverflow.visible,
                       style: TextStyle(
-                        color: Color(0x88FFFFFF),
+                        color: Color(0xCCFFFFFF),
                         decoration: TextDecoration.none,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
@@ -467,7 +534,7 @@ class DashboardTopBar extends StatelessWidget {
             ],
           ),
         ),
-        const PwaInstallButton(),
+        const LanguageToggleButton(),
         const SizedBox(width: 10),
         PressableScale(
           onTap: () => showLogoutDialog(context),
@@ -491,128 +558,146 @@ class DashboardTopBar extends StatelessWidget {
   }
 }
 
+
 class CleanHeroCard extends StatelessWidget {
   const CleanHeroCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedHoverLift(
-      borderRadius: 34,
-      child: Container(
-        height: 292,
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(34),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF06080D), Color(0xFF101827), Color(0xFF22344E)],
-          ),
-          border: Border.all(color: Colors.white.withOpacity(0.10)),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF22344E).withOpacity(0.36),
-              blurRadius: 36,
-              offset: const Offset(0, 20),
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.55),
-              blurRadius: 34,
-              offset: const Offset(0, 22),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              right: -72,
-              top: -82,
-              child: FloatingGlow(
-                color: AppColors.borusanOrange.withOpacity(0.12),
-                size: 220,
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.notifier,
+      builder: (context, languageCode, _) {
+        final isEnglish = languageCode == 'en';
+
+        return AnimatedHoverLift(
+          borderRadius: 34,
+          child: Container(
+            height: 292,
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(34),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF06080D),
+                  Color(0xFF101827),
+                  Color(0xFF22344E),
+                ],
               ),
+              border: Border.all(color: Colors.white.withOpacity(0.10)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF22344E).withOpacity(0.36),
+                  blurRadius: 36,
+                  offset: const Offset(0, 20),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.55),
+                  blurRadius: 34,
+                  offset: const Offset(0, 22),
+                ),
+              ],
             ),
-            Positioned(
-              left: -90,
-              bottom: -110,
-              child: FloatingGlow(
-                color: AppColors.champagne.withOpacity(0.08),
-                size: 230,
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                SizedBox(
-                  height: 78,
-                  child: ClientLogoBadge(
-                    logoPath: demoGuest.clientLogoPath,
-                    clientName: demoGuest.clientName,
+                Positioned(
+                  right: -72,
+                  top: -82,
+                  child: FloatingGlow(
+                    color: AppColors.borusanOrange.withOpacity(0.12),
+                    size: 220,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  'Merhaba,',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.62),
-                    decoration: TextDecoration.none,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                Positioned(
+                  left: -90,
+                  bottom: -110,
+                  child: FloatingGlow(
+                    color: AppColors.champagne.withOpacity(0.08),
+                    size: 230,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  demoGuest.fullName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.none,
-                    fontSize: 36,
-                    fontWeight: FontWeight.w900,
-                    height: 1.02,
-                    letterSpacing: -1.1,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  demoGuest.eventTitle,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.84),
-                    decoration: TextDecoration.none,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  '${demoGuest.eventDate} · ${demoGuest.location}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.54),
-                    decoration: TextDecoration.none,
-                    fontSize: 13.2,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    HeroMiniChip(
-                      icon: Icons.hotel_rounded,
-                      label: 'Oda ${demoGuest.roomNumber}',
+                    SizedBox(
+                      height: 78,
+                      child: ClientLogoBadge(
+                        logoPath: demoGuest.clientLogoPath,
+                        clientName: demoGuest.clientName,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    const HeroMiniChip(
-                      icon: Icons.event_available_rounded,
-                      label: '1. Gün',
+                    const Spacer(),
+                    Text(
+                      isEnglish ? 'Hello,' : 'Merhaba,',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.62),
+                        decoration: TextDecoration.none,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      demoGuest.fullName,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w900,
+                        height: 1.02,
+                        letterSpacing: -1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      isEnglish
+                          ? 'Zurich Insurance Leadership Meeting 2026'
+                          : demoGuest.eventTitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.84),
+                        decoration: TextDecoration.none,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      isEnglish
+                          ? 'May 14-16, 2026 · Istanbul'
+                          : '${demoGuest.eventDate} · ${demoGuest.location}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.54),
+                        decoration: TextDecoration.none,
+                        fontSize: 13.2,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        HeroMiniChip(
+                          icon: Icons.hotel_rounded,
+                          label: isEnglish
+                              ? 'Room ${demoGuest.roomNumber}'
+                              : 'Oda ${demoGuest.roomNumber}',
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -670,7 +755,7 @@ class HeroMiniChip extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const HeroMiniChip({super.key, required this.icon, required this.label});
+  HeroMiniChip({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -727,18 +812,18 @@ class TodayCompactCard extends StatelessWidget {
           ],
         ),
         child: Column(
-          children: const [
+          children: [
             TodayRow(
               time: '09:30',
-              title: 'Karşılama Kahvesi',
-              subtitle: 'Fuaye Alanı',
+              title: AppText.t('dashboard.todayCoffee'),
+              subtitle: AppText.t('dashboard.foyer'),
               accent: Color(0xFFD6B16A),
             ),
             SizedBox(height: 12),
             TodayRow(
               time: '18:30',
-              title: 'Akşam Transferi',
-              subtitle: 'Otel ana girişi',
+              title: AppText.t('dashboard.eveningTransfer'),
+              subtitle: AppText.t('dashboard.hotelEntrance'),
               accent: Color(0xFF72C7C2),
             ),
           ],
@@ -754,7 +839,7 @@ class TodayRow extends StatelessWidget {
   final String subtitle;
   final Color accent;
 
-  const TodayRow({
+  TodayRow({
     super.key,
     required this.time,
     required this.title,
@@ -1203,9 +1288,9 @@ class LivePollAccessCard extends StatelessWidget {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 25,
               backgroundColor: Color(0x22FFFFFF),
               child: Icon(
@@ -1214,22 +1299,22 @@ class LivePollAccessCard extends StatelessWidget {
                 size: 28,
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Canlı Anket',
+                    AppText.t('dashboard.livePoll'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
-                    'Sahnedeki soruyu telefonundan yanıtla',
+                    AppText.t('dashboard.livePollSubtitle'),
                     style: TextStyle(
                       color: Color(0xFFE2E8F0),
                       fontSize: 13,
@@ -1240,7 +1325,7 @@ class LivePollAccessCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
+            const Icon(
               Icons.chevron_right_rounded,
               color: Colors.white,
               size: 30,
@@ -1283,7 +1368,7 @@ class SssAccessCard extends StatelessWidget {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           children: [
             CircleAvatar(
               radius: 25,
@@ -1294,22 +1379,22 @@ class SssAccessCard extends StatelessWidget {
                 size: 28,
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'SSS',
+                    AppText.t('dashboard.faq'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
-                    'Sıkça sorulan sorular ve hızlı cevaplar',
+                    AppText.t('dashboard.faqSubtitle'),
                     style: TextStyle(
                       color: Color(0xFFE2E8F0),
                       fontSize: 13,
@@ -1320,7 +1405,7 @@ class SssAccessCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
+            const Icon(
               Icons.chevron_right_rounded,
               color: Colors.white,
               size: 30,
@@ -1387,8 +1472,8 @@ class QrAccessCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'QR Kodum',
+                  Text(
+                    AppText.t('dashboard.qr'),
                     style: TextStyle(
                       color: Colors.white,
                       decoration: TextDecoration.none,
@@ -1399,7 +1484,7 @@ class QrAccessCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Etkinlik giri\u015Finde QR kodunuzu g\u00F6sterin.',
+                    AppText.t('dashboard.qrSubtitle'),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.60),
                       decoration: TextDecoration.none,
@@ -1448,6 +1533,8 @@ class ZurichGptwImageCard extends StatelessWidget {
   }
 }
 
+
+
 class DailyNotesCompactButton extends StatelessWidget {
   const DailyNotesCompactButton({super.key});
 
@@ -1460,38 +1547,45 @@ class DailyNotesCompactButton extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (_) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 46,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'G\u00FCn\u00FCn Notlar\u0131',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 21,
-                      fontWeight: FontWeight.w900,
+        return ValueListenableBuilder<String>(
+          valueListenable: AppLanguage.notifier,
+          builder: (context, languageCode, _) {
+            final isEnglish = languageCode == 'en';
+
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        isEnglish ? 'Daily Notes' : 'Günün Notları',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const DailyNotesCard(),
+                  ],
                 ),
-                const SizedBox(height: 14),
-                const DailyNotesCard(),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1499,56 +1593,66 @@ class DailyNotesCompactButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PressableScale(
-      onTap: () => showDailyNotes(context),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: glassDecoration(radius: 26, opacity: 0.070),
-        child: Row(
-          children: [
-            AnimatedGlowIconContainer(
-              accent: const Color(0xFF7EA7D8),
-              icon: Icons.notes_rounded,
-            ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'G\u00FCn\u00FCn Notlar\u0131',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                    ),
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.notifier,
+      builder: (context, languageCode, _) {
+        final isEnglish = languageCode == 'en';
+
+        return PressableScale(
+          onTap: () => showDailyNotes(context),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: glassDecoration(radius: 26, opacity: 0.070),
+            child: Row(
+              children: [
+                AnimatedGlowIconContainer(
+                  accent: const Color(0xFF7EA7D8),
+                  icon: Icons.notes_rounded,
+                ),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isEnglish ? 'Daily Notes' : 'Günün Notları',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isEnglish
+                            ? 'Weather, transfer and event notes'
+                            : 'Hava durumu, transfer ve etkinlik notları',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.56),
+                          decoration: TextDecoration.none,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Hava durumu, transfer ve etkinlik notlar\u0131',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.56),
-                      decoration: TextDecoration.none,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white70,
+                  size: 25,
+                ),
+              ],
             ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white70,
-              size: 25,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
+
 class DailyNotesCard extends StatelessWidget {
   const DailyNotesCard({super.key});
 
@@ -1560,7 +1664,7 @@ class DailyNotesCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: glassDecoration(radius: 28, opacity: 0.075),
         child: Column(
-          children: const [
+          children: [
             DailyNoteRow(
               icon: Icons.cloud_rounded,
               title: 'Hava Durumu',
@@ -1594,7 +1698,7 @@ class DailyNoteRow extends StatelessWidget {
   final String subtitle;
   final Color accent;
 
-  const DailyNoteRow({
+  DailyNoteRow({
     super.key,
     required this.icon,
     required this.title,

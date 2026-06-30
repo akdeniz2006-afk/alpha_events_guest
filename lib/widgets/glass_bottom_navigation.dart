@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_text.dart';
+import '../l10n/app_language.dart';
+
 class GlassBottomNavigation extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onChanged;
@@ -14,16 +17,19 @@ class GlassBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      _NavItem(icon: Icons.home_rounded, label: 'Ana Sayfa', color: Color(0xFF60A5FA)),
-      _NavItem(icon: Icons.calendar_month_rounded, label: 'Program', color: Color(0xFF38BDF8)),
-      _NavItem(icon: Icons.hotel_rounded, label: 'Odam', color: Color(0xFFFBBF24)),
-      _NavItem(icon: Icons.photo_library_rounded, label: 'Fotoğraflar', color: Color(0xFFA78BFA)),
-      _NavItem(icon: Icons.support_agent_rounded, label: 'Yardım', color: Color(0xFF34D399)),
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.notifier,
+      builder: (context, languageCode, _) {
+        final items = [
+      _NavItem(icon: Icons.home_rounded, label: AppText.t('nav.home'), color: Color(0xFF60A5FA)),
+      _NavItem(icon: Icons.calendar_month_rounded, label: AppText.t('nav.program'), color: Color(0xFF38BDF8)),
+      _NavItem(icon: Icons.hotel_rounded, label: AppText.t('nav.room'), color: Color(0xFFFBBF24)),
+      _NavItem(icon: Icons.photo_library_rounded, label: AppText.t('nav.photos'), color: Color(0xFFA78BFA)),
+      _NavItem(icon: Icons.support_agent_rounded, label: AppText.t('nav.help'), color: Color(0xFF34D399)),
     ];
 
-    return Center(
-      heightFactor: 1,
+        return Center(
+          heightFactor: 1,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 430),
         child: Padding(
@@ -135,6 +141,8 @@ class GlassBottomNavigation extends StatelessWidget {
           ),
         ),
       ),
+        );
+      },
     );
   }
 }
